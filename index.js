@@ -2,6 +2,8 @@ const express = require('express')
 const helmet = require('helmet')
 const cors = require('cors')
 const app = express()
+const database = require('./src/database/database.mongo')
+const PORT = process.env.PORT
 
 
 require('dotenv').config()
@@ -13,8 +15,8 @@ app.use(cors())
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 
-const PORT = process.env.PORT
 
 app.listen(PORT, () => {
     console.log(`🚀 ${"Server up and running".blue}`);
+    database()
 })
