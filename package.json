@@ -1,0 +1,25 @@
+{
+  "name": "house-renting-api",
+  "version": "1.0.0",
+  "description": "House rent and sell API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js --quiet"
+  },
+  "author": "Gift Ibe",
+  "license": "ISC",
+  "devDependencies": {
+    "colors": "^1.4.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "helmet": "^7.0.0",
+    "mongoose": "^7.5.4",
+    "nodemon": "^3.0.1"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "express": "^4.18.2",
+    "joi": "^17.11.0"
+  }
+}
