@@ -30,7 +30,7 @@ class AdminServices {
             });
         }
         catch (error) {
-            return res.send(Boom.badImplementation('An internal server error occurred ' + error));
+            return res.send(Boom.conflict('there was a conflict' + error));
         }
     }
 
