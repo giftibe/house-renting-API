@@ -13,7 +13,7 @@ class userServices {
             //check if email exist
             const existingUser = await user.find({ email: email }, { _id: 1, password: 0 })
             if (existingUser) {
-                return res.send(Boom.conflict('Email already exists'))
+                return Boom.conflict('Email already exists')
             }
 
             //save to data
@@ -34,13 +34,13 @@ class userServices {
             generate_Template(Link, htmlFileDir)
             mailer({ subject: subject1, template: generate_Template, email: email })
 
-            return res.status(201).send({
+            return {
                 message: MESSAGES.USER.CREATED,
                 success: true,
-            });
+            };
         }
         catch (error) {
-            return res.send(Boom.conflict('there was a conflict' + error));
+            return Boom.conflict('there was a conflict' + error);
         }
     }
 
@@ -53,10 +53,10 @@ class userServices {
 
 
             if (!findUser) {
-                return res.status(404).send({
+                return {
                     message: "Email does not exit, register",
                     success: false
-                })
+                }
             }
 
             //check if users' email is verified
@@ -72,10 +72,10 @@ class userServices {
                 //send email to verify account
                 generate_Template(Link, htmlFileDir)
                 mailer({ subject: subject1, template: generate_Template, email: email })
-                return res.status(201).send({
+                return {
                     message: 'MESSAGES.USER.VERIFY_EMAIL',
                     success: false,
-                });
+                };
             }
 
             //compare passwords with jwt
@@ -88,13 +88,13 @@ class userServices {
             }
             const { password, ...data } = findUser.toJSON();
 
-            return res.status(200).send({
+            return {
                 message: 'MESSAGES.USER_LOGGEDIN',
                 success: true,
                 data
-            })
+            }
         } catch (error) {
-            return res.send(Boom.conflict('A conflict occured' + error));
+            return Boom.conflict('A conflict occured' + error);
         }
     }
 
@@ -110,29 +110,29 @@ class userServices {
             if (findUser) {
                 const updated = await user.findByIdAndUpdate({ _id: id }, data);
                 if (updated) {
-                    return res.status(200).send({
+                    return {
                         message: 'MESSAGES.USER.ACCOUNT_UPDATED',
                         success: true,
                         updated,
-                    });
+                    };
                 } else {
-                    return res.status(409).send({
+                    return {
                         message: 'MESSAGES.USER.NOT_UPDATED',
                         success: false,
-                    });
+                    };
                 }
             } else {
-                return res.status(400).send({
+                return {
                     success: false,
                     message: 'MESSAGES.USER.ACCOUNT_NOT_REGISTERED',
-                });
+                };
             }
 
         } catch (error) {
-            return res.status(500).send({
+            return {
                 message: 'MESSAGES.USER.ERROR' + error.message,
                 success: false,
-            });
+            };
         }
     }
 
@@ -144,17 +144,17 @@ class userServices {
     async loggedOutUser() {
         try {
             const token = "";
-            await res.cookie("token", token, { httpOnly: true });
-            return res.status(200).send({
+            // await res.cookie("token", token, { httpOnly: true });
+            return {
                 message: 'MESSAGES.USER.LOGGEDOUT',
                 token: token,
                 success: true,
-            });
+            };
         } catch (err) {
-            return res.status(500).send({
+            return {
                 message: 'MESSAGES.USER.SERVER_ERROR ' + err,
                 success: false,
-            });
+            };
         }
     }
 
@@ -169,10 +169,10 @@ class userServices {
             const { email } = data;
             const userEmail = await user.find({ email: email });
             if (!userEmail) {
-                return res.status(404).send({
+                return {
                     message: 'MESSAGES.USER.EMAIL_NOTFOUND',
                     success: false,
-                });
+                };
             }
             //if the email exists send
             const payload = {
@@ -194,15 +194,15 @@ class userServices {
             generate_Template(Link, htmlFileDir)
             mailer({ subject: subject2, template: generate_Template, email: email })
 
-            return res.status(201).send({
+            return {
                 success: true,
                 message: 'MESSAGES.USER.EMAIL_SENT',
-            });
+            };
         } catch (error) {
-            return res.status(500).send({
+            return {
                 message: 'MESSAGES.USER.SERVER_ERROR' + error,
                 success: false,
-            });
+            };
         }
     }
 
@@ -217,30 +217,30 @@ class userServices {
             //check if a user with the id exist in db
             const checkUser = await user.findById({ _id: id });
             if (!checkUser) {
-                return res.status(401).send({
+                return {
                     message: 'MESSAGES.USER.ACCOUNT_NOT_REGISTERED',
                     success: false,
-                });
+                };
             }
 
             try {
                 const secret = process.env.SECRET_KEY;
                 jwt.verify(token, secret);
-                return res.status(200).send({
+                return {
                     message: 'MESSAGES.USER.VALID_LINK',
                     success: true,
-                });
+                };
             } catch (error) {
-                return res.status(403).send({
+                return {
                     message: 'MESSAGES.USER.INVALID_LINK' + error,
                     success: false,
-                });
+                };
             }
         } catch (error) {
-            return res.status(500).send({
+            return {
                 message: 'MESSAGES.USER.SERVER_ERROR' + error,
                 success: false,
-            });
+            };
         }
     }
 
@@ -257,22 +257,22 @@ class userServices {
 
             const userfound = await user.findById({ _id: id });
             if (!userfound) {
-                return res.status(404).send({
+                return {
                     message: 'MESSAGES.USER.EMAIL_NOTFOUND',
                     success: false,
-                });
+                };
             }
             //generate new password and update it
             await user.findByIdAndDelete(id, { password: password });
-            return res.status(201).send({
+            return {
                 message: 'MESSAGES.USER.PASSWORD_UPDATED',
                 success: true,
-            });
+            };
         } catch (error) {
-            return res.status(500).send({
+            return {
                 message: 'MESSAGES.USER.SERVER_ERROR' + error,
                 success: false,
-            });
+            };
         }
     }
 
@@ -285,26 +285,26 @@ class userServices {
             let userFound = await user.findById({ _id: id })
 
             if (!userFound) {
-                return res.status(403).send({
+                return {
                     message: "You are not authorized to perform this action",
                     success: false
-                })
+                }
             }
             const newHousePost = await House.create({
                 user: id,
                 ...data
             })
-            return res.status(201).send({
+            return {
                 message: "House created successfully",
                 success: true,
                 newHousePost
-            })
+            }
 
         } catch (error) {
-            return res.status(500).send({
+            return {
                 message: 'MESSAGES.USER.SERVER_ERROR' + error,
                 success: false,
-            });
+            }
         }
     }
 
@@ -316,23 +316,23 @@ class userServices {
             const { id } = data //house id
             const findHouse = await House.findById({ _id: id })
             if (!findHouse) {
-                return res.status(401).send({
+                return {
                     message: "No such House post exist",
                     success: false
-                })
+                }
             }
 
             await House.findByIdAndDelete({ _id: id })
-            return res.status(204).send({
+            return {
                 message: "Post successfully deleted",
                 success: true
-            })
+            }
 
         } catch (error) {
-            return res.status(500).send({
+            return {
                 message: 'MESSAGES.USER.SERVER_ERROR' + error,
                 success: false,
-            });
+            }
         }
     }
 
@@ -344,24 +344,24 @@ class userServices {
             const { id } = data
             const findHouse = await House.findById({ _id: id })
             if (!findHouse) {
-                return res.status(401).send({
+                return {
                     message: "No such House post exist",
                     success: false
-                })
+                }
             }
             const updatedHouse = await House.findOneAndUpdate({ _id: id }, data)
-            return res.status(200).send({
+            return {
                 message: "House post updated successfully",
                 success: true,
                 updatedHouse
-            })
+            }
 
 
         } catch (error) {
-            return res.status(500).send({
+            return {
                 message: 'MESSAGES.USER.SERVER_ERROR' + error,
                 success: false,
-            });
+            }
         }
     }
 
@@ -371,30 +371,30 @@ class userServices {
             const { id } = data
             const getUser = await user.find({ _id: id })
             if (!getUser) {
-                return res.status(404).send({
+                return {
                     message: "User does not exist",
                     success: false,
-                })
+                }
             }
 
             const houses = await House.find({ user: id })
             if (houses.length == 0) {
-                return res.status(403).json({
+                return {
                     message: "You have to add posted",
                     success: false
-                })
+                }
             }
-            return res.status(200).send({
+            return {
                 message: "Houses has been found",
                 success: true,
                 houses
-            })
+            }
 
         } catch (error) {
-            return res.status(500).send({
+            return {
                 message: 'MESSAGES.USER.SERVER_ERROR' + error,
                 success: false,
-            });
+            }
         }
     }
 
@@ -407,39 +407,39 @@ class userServices {
             //Check the house exists
             const findHouse = await House.findById({ _id: houseId })
             if (!findHouse) {
-                return res.status(401).send({
+                return {
                     message: "House does not exist",
                     success: false
-                })
+                }
             }
             //check if the user exist
             const checkUser = await user.findById({ _id: userId })
             if (!checkUser) {
-                return res.status(401).send({
+                return {
                     message: "user doesn't exist",
                     success: false
-                })
+                }
             }
 
             //if user exist get the savedItem section
             let savedItems = checkUser.savedItem;
             const saved = savedItems.push(houseId)
             if (!saved) {
-                return res.status(403).send({
+                return {
                     message: "item not saved",
                     success: false
-                })
+                }
             }
-            return res.status(204).send({
+            return {
                 message: 'Item saved for later',
                 success: true,
                 findHouse
-            })
+            }
         } catch (error) {
-            return res.status(500).send({
+            return {
                 message: 'MESSAGES.USER.SERVER_ERROR' + error,
                 success: false,
-            });
+            };
         }
     }
 }

@@ -15,7 +15,7 @@ class AdminServices {
             //check if email exist
             const existingUser = await Admin.find({ email: email }, { _id: 1, password: 0 })
             if (existingUser) {
-                return res.send(Boom.conflict('Email already exists'))
+                return Boom.conflict('Email already exists')
             }
 
             //save to data
@@ -36,13 +36,13 @@ class AdminServices {
             generate_Template(Link, htmlFileDir)
             mailer({ subject: subject1, template: generate_Template, email: email })
 
-            return res.status(201).send({
-                message: MESSAGES.USER.CREATED,
+            return {
+                message: "MESSAGES.USER.CREATED",
                 success: true,
-            });
+            };
         }
         catch (error) {
-            return res.send(Boom.conflict('there was a conflict' + error));
+            return Boom.conflict('there was a conflict' + error);
         }
     }
 
@@ -55,10 +55,10 @@ class AdminServices {
 
 
             if (!findUser) {
-                return res.status(404).send({
+                return {
                     message: "Email does not exit, register",
                     success: false
-                })
+                }
             }
 
             //check if users' email is verified
@@ -74,27 +74,27 @@ class AdminServices {
                 //send email to verify account
                 generate_Template(Link, htmlFileDir)
                 mailer({ subject: subject1, template: generate_Template, email: email })
-                return res.status(201).send({
+                return {
                     message: 'MESSAGES.USER.VERIFY_EMAIL',
                     success: false,
-                });
+                };
             }
 
             //compare passwords with jwt
             const isMatch = await bcrypt.compare(password, findUser.password);
             if (!isMatch) {
-                return res.status(403).send({
+                return {
                     message: 'MESSAGES.USER.WRONG_PASSWORD',
                     success: false,
-                });
+                };
             }
 
-            return res.status(200).send({
+            return {
                 message: 'MESSAGES.USER_LOGGEDIN',
                 success: true,
-            })
+            }
         } catch (error) {
-            return res.send(Boom.conflict('A conflict occured' + error));
+            return Boom.conflict('A conflict occured' + error);
         }
     }
 
@@ -105,46 +105,44 @@ class AdminServices {
             const { id } = data
             const findUser = await Admin.findById({ _id: id }, { _id: 1, password: 0 })
             if (!findUser) {
-                return res.status(403).send({
+                return {
                     message: 'No User Found',
                     success: false
-                })
+                }
             }
 
-            return res.status(200).send({
+            return {
                 message: 'MESSAGES.USER_LOGGEDIN',
                 success: true,
                 findUser
-            })
+            }
 
         } catch (error) {
-            return res.send(Boom.conflict('A conflict occured' + error));
+            return Boom.conflict('A conflict occured' + error);
         }
     }
 
 
 
-    //      @route  GET /api/v1/user/user
-    //     @desc    find all sellers
-    //     *  @access  Private
+
     async getAllUser() {
         try {
             const User = await user.find({}, { _id: 1, password: 0 })
             if (User.length === 0) {
-                return res.status(403).send({
+                return {
                     message: 'MESSAGES.USER.NO_USER',
                     success: false,
-                })
+                }
             }
 
-            return res.status(200).send({
+            return {
                 message: 'MESSAGES.USER.USER_FOUND',
                 success: true,
                 User
-            })
+            }
 
         } catch (error) {
-            return res.send(Boom.badRequest('Bad Request' + error))
+            return Boom.badRequest('Bad Request' + error)
         }
     }
 
@@ -155,83 +153,58 @@ class AdminServices {
             const { id } = data
             const User = await user.findById({ _id: id }, { _id: 1, password: 0 })
             if (!User) {
-                return res.status(403).send({
+                return {
                     message: 'MESSAGES.USER.NO_USER',
                     success: false,
-                })
+                }
             }
 
-            return res.status(200).send({
+            return {
                 message: 'MESSAGES.USER.USER_FOUND',
                 success: true,
                 User
-            })
+            }
 
         } catch (error) {
-            return res.send(Boom.badRequest('Bad Request' + error))
+            return Boom.badRequest('Bad Request' + error)
         }
     }
 
 
     //update an Admin
-    async updateAdmin(data) {
+    async updateAdmin(id, data) {
         try {
-            const { id, firstName, lastName, mobile } = data;
             // Check if valid id
-
             const findUser = await Admin.findById({ _id: id });
             if (findUser) {
-                const updated = await Admin.findByIdAndUpdate({ _id: id }, {
-                    firstName: firstName,
-                    lastName: lastName,
-                    mobile: mobile
-                });
+                const updated = await Admin.findByIdAndUpdate(
+                    { _id: id },
+                    ...data
+                );
                 if (updated) {
-                    return res.status(200).send({
+                    return {
                         message: 'MESSAGES.USER.ACCOUNT_UPDATED',
                         success: true,
                         updated,
-                    });
+                    }
                 } else {
-                    return res.status(409).send({
+                    return {
                         message: 'MESSAGES.USER.NOT_UPDATED',
                         success: false,
-                    });
+                    };
                 }
             } else {
-                return res.status(400).send({
+                return {
                     success: false,
                     message: 'MESSAGES.USER.ACCOUNT_NOT_REGISTERED',
-                });
+                }
             }
 
         } catch (error) {
-            return res.status(500).send({
-                message: MESSAGES.USER.ERROR + error.message,
+            return {
+                message: 'MESSAGES.USER.ERROR' + error.message,
                 success: false,
-            });
-        }
-    }
-
-
-    //    @route   POST /api/v1/user/logout
-    //     @desc    Handles user logout
-    //     *  @access  Private
-
-    async loggedOutAdmin() {
-        try {
-            const token = "";
-            await res.cookie("token", token, { httpOnly: true });
-            return res.status(200).send({
-                message: 'MESSAGES.USER.LOGGEDOUT',
-                token: token,
-                success: true,
-            });
-        } catch (err) {
-            return res.status(500).send({
-                message: 'MESSAGES.USER.SERVER_ERROR ' + err,
-                success: false,
-            });
+            };
         }
     }
 
@@ -246,10 +219,10 @@ class AdminServices {
             const { email } = data;
             const userEmail = await Admin.find({ email: email });
             if (!userEmail) {
-                return res.status(404).send({
+                return {
                     message: 'MESSAGES.USER.EMAIL_NOTFOUND',
                     success: false,
-                });
+                };
             }
             //if the email exists send
             const payload = {
@@ -271,15 +244,15 @@ class AdminServices {
             generate_Template(Link, htmlFileDir)
             mailer({ subject: subject2, template: generate_Template, email: email })
 
-            return res.status(201).send({
+            return {
                 success: true,
                 message: 'MESSAGES.USER.EMAIL_SENT',
-            });
+            };
         } catch (error) {
-            return res.status(500).send({
+            return {
                 message: 'MESSAGES.USER.SERVER_ERROR' + error,
                 success: false,
-            });
+            };
         }
     }
 
@@ -294,33 +267,33 @@ class AdminServices {
             //check if a user with the id exist in db
             const checkUser = await Admin.findById({ _id: id });
             if (!checkUser) {
-                return res.status(401).send({
+                return {
                     message: 'MESSAGES.USER.ACCOUNT_NOT_REGISTERED',
                     success: false,
-                });
+                }
             }
 
             try {
                 const decoded = jwt.verify(token, secret);
                 const isMatch = await bcrypt.compare(decoded.password, checkUser.password);
                 if (!decoded || !isMatch) {
-                    return res.status(200).send({
+                    return {
                         message: 'MESSAGES.USER.VALID_LINK',
                         success: true,
-                    });
+                    };
                 }
 
             } catch (error) {
-                return res.status(403).send({
+                return {
                     message: 'MESSAGES.USER.INVALID_LINK' + error,
                     success: false,
-                });
+                };
             }
         } catch (error) {
-            return res.status(500).send({
+            return {
                 message: 'MESSAGES.USER.SERVER_ERROR' + error,
                 success: false,
-            });
+            };
         }
     }
 
@@ -328,29 +301,29 @@ class AdminServices {
     //     @desc    updates the password field
     //     *  @access  Private
 
-    async updatePassword(data) {
+    async updatePassword(id, data) {
         try {
             //check if  the email exist
-            const { id, password } = data;
+            const { password } = data;
 
             const userfound = await Admin.findById({ _id: id });
             if (!userfound) {
-                return res.status(404).send({
+                return {
                     message: 'MESSAGES.USER.EMAIL_NOTFOUND',
                     success: false,
-                });
+                };
             }
             //generate new password and update it
-            await Admin.findByIdAndDelete(id, { password: password });
-            return res.status(201).send({
+            await Admin.findByIdAndDelete({ _id: id }, { password: password });
+            return {
                 message: 'MESSAGES.USER.PASSWORD_UPDATED',
                 success: true,
-            });
+            };
         } catch (error) {
-            return res.status(500).send({
+            return {
                 message: 'MESSAGES.USER.SERVER_ERROR' + error,
                 success: false,
-            });
+            };
         }
     }
 }
