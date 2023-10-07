@@ -2,8 +2,16 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 const ENUM = require('../config/config.constant')
 const Seller = require('./seller.model')
+const uuid = require('uuid');
+
 
 const houseModel = new Schema({
+
+    _id: {
+        type: String,
+        default: uuid.v4,
+        unique: true,
+    },
 
     seller: {
         type: Schema.Types.ObjectId,

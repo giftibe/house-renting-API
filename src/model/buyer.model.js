@@ -2,11 +2,18 @@ const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
 const ENUM = require('../config/config.constant')
 const House = require('./house.model')
+const uuid = require('uuid');
 const rounds = process.env.ROUNDS
 const Schema = mongoose.Schema
 
 
 const buyerSchema = new Schema({
+
+    _id: {
+        type: String,
+        default: uuid.v4,
+        unique: true,
+    },
 
     email: {
         type: String,
@@ -42,6 +49,11 @@ const buyerSchema = new Schema({
     },
 
     isVerified: {
+        type: Boolean,
+        default: false,
+    },
+
+    isBlocked: {
         type: Boolean,
         default: false,
     },

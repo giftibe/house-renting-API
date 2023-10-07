@@ -34,6 +34,49 @@ class SellerServices {
         }
     }
 
+    async loginUser(data) {
+        try {
+            const { email, password } = data
+            //check if the user email exists in db
+            const findUser = await Seller.find({ email: email })
+
+
+            if (!findUser) {
+                return res.status(404).send({
+                    message: "Email does not exit, register",
+                    success: false
+                })
+            }
+
+            //check if users' email is verified
+            if (findUser.isVerified === false) {
+                generate_Template(email, secret)
+                mailer({ subject: subject1, template: generate_Template, email: email })
+                return res.status(201).send({
+                    message: 'MESSAGES.USER.VERIFY_EMAIL',
+                    success: false,
+                });
+            }
+
+            //compare passwords with jwt
+            const isMatch = await bcrypt.compare(password, findUser.password);
+            if (!isMatch) {
+                return res.status(403).send({
+                    message: 'MESSAGES.USER.WRONG_PASSWORD',
+                    success: false,
+                });
+            }
+
+            return res.status(200).send({
+                message: 'MESSAGES.USER_LOGGEDIN',
+                success: true,
+            })
+        } catch (error) {
+            return res.send(Boom.conflict('A conflict occured' + error));
+        }
+    }
+
+
 
 
 
