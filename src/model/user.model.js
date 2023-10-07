@@ -7,6 +7,7 @@ const rounds = process.env.ROUNDS
 const Schema = mongoose.Schema
 
 const userSchema = new Schema({
+
     _id: {
         type: String,
         default: uuid.v4,
@@ -64,11 +65,11 @@ const userSchema = new Schema({
         default: false,
     },
 
-    savedItem: {
+    savedItem: [{
         type: Schema.Types.ObjectId,
         ref: 'House',
         default: ENUM.SAVED
-    },
+    }],
 
     isBlocked: {
         type: Boolean,
@@ -95,5 +96,5 @@ sellerSchema.pre("findOneAndUpdate", async function (next) {
 });
 
 
-const user = mongoose.Model('user', sellerSchema)
+const user = mongoose.Model('user', userSchema)
 module.exports = user

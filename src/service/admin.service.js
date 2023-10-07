@@ -3,9 +3,7 @@ const Boom = require('@hapi/boom');
 const mailer = require('../utils/emailer')
 const jwt = require('jsonwebtoken')
 const generate_Template = require('../utils/template');
-const Buyer = require('../model/buyer.model');
-const Seller = require('../model/seller.model');
-const { findByIdAndDelete } = require('../model/house.model');
+const user = require('../model/user.model');
 const { subject1, secret } = process.env
 
 
@@ -101,7 +99,8 @@ class AdminServices {
     }
 
 
-    async getAUser(data) {
+    //get an admin
+    async getAnAdmin(data) {
         try {
             const { id } = data
             const findUser = await Admin.findById({ _id: id }, { _id: 1, password: 0 })
@@ -124,35 +123,13 @@ class AdminServices {
     }
 
 
-    //@ find all buyers
-    async getAllBuyers() {
-        try {
-            const User = await Buyer.find({}, { _id: 1, password: 0 })
-            if (User.length === 0) {
-                return res.status(403).send({
-                    message: 'MESSAGES.USER.NO_USER',
-                    success: false,
-                })
-            }
 
-            return res.status(200).send({
-                message: 'MESSAGES.USER.USER_FOUND',
-                success: true,
-                User
-            })
-
-        } catch (error) {
-            return res.send(Boom.badRequest('Bad Request' + error))
-        }
-    }
-
-
-    //      @route  GET /api/v1/user/sellers
+    //      @route  GET /api/v1/user/user
     //     @desc    find all sellers
     //     *  @access  Private
-    async getAllSeller() {
+    async getAllUser() {
         try {
-            const User = await Seller.find({}, { _id: 1, password: 0 })
+            const User = await user.find({}, { _id: 1, password: 0 })
             if (User.length === 0) {
                 return res.status(403).send({
                     message: 'MESSAGES.USER.NO_USER',
@@ -172,34 +149,11 @@ class AdminServices {
     }
 
 
-
-    async getABuyer(data) {
+    //gets a user
+    async getAUser(data) {
         try {
             const { id } = data
-            const User = await Buyer.findById({ _id: id }, { _id: 1, password: 0 })
-            if (!User) {
-                return res.status(403).send({
-                    message: 'MESSAGES.USER.NO_USER',
-                    success: false,
-                })
-            }
-
-            return res.status(200).send({
-                message: 'MESSAGES.USER.USER_FOUND',
-                success: true,
-                User
-            })
-
-        } catch (error) {
-            return res.send(Boom.badRequest('Bad Request' + error))
-        }
-    }
-
-
-    async getASeller(data) {
-        try {
-            const { id } = data
-            const User = await Seller.findById({ _id: id }, { _id: 1, password: 0 })
+            const User = await user.findById({ _id: id }, { _id: 1, password: 0 })
             if (!User) {
                 return res.status(403).send({
                     message: 'MESSAGES.USER.NO_USER',
@@ -347,12 +301,15 @@ class AdminServices {
             }
 
             try {
-                const secret = process.env.SECRET_KEY;
-                jwt.verify(token, secret);
-                return res.status(200).send({
-                    message: 'MESSAGES.USER.VALID_LINK',
-                    success: true,
-                });
+                const decoded = jwt.verify(token, secret);
+                const isMatch = await bcrypt.compare(decoded.password, checkUser.password);
+                if (!decoded || !isMatch) {
+                    return res.status(200).send({
+                        message: 'MESSAGES.USER.VALID_LINK',
+                        success: true,
+                    });
+                }
+
             } catch (error) {
                 return res.status(403).send({
                     message: 'MESSAGES.USER.INVALID_LINK' + error,
@@ -374,7 +331,7 @@ class AdminServices {
     async updatePassword(data) {
         try {
             //check if  the email exist
-            const{id, password} = data;
+            const { id, password } = data;
 
             const userfound = await Admin.findById({ _id: id });
             if (!userfound) {
@@ -396,10 +353,6 @@ class AdminServices {
             });
         }
     }
-
-    //block an account
-    //unblock an account
-
 }
 
 module.exports = new AdminServices()

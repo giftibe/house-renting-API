@@ -47,7 +47,7 @@ class userServices {
 
     async loginUser(data) {
         try {
-            const { email, password } = data
+            const { email } = data
             //check if the user email exists in db
             const findUser = await user.find({ email: email })
 
@@ -79,25 +79,24 @@ class userServices {
             }
 
             //compare passwords with jwt
-            const isMatch = await bcrypt.compare(password, findUser.password);
+            const isMatch = await bcrypt.compare(data.password, findUser.password);
             if (!isMatch) {
                 return res.status(403).send({
                     message: 'MESSAGES.USER.WRONG_PASSWORD',
                     success: false,
                 });
             }
+            const { password, ...data } = findUser.toJSON();
 
             return res.status(200).send({
                 message: 'MESSAGES.USER_LOGGEDIN',
                 success: true,
+                data
             })
         } catch (error) {
             return res.send(Boom.conflict('A conflict occured' + error));
         }
     }
-
-
-
 
 
 
@@ -299,7 +298,6 @@ class userServices {
                 message: "House created successfully",
                 success: true,
                 newHousePost
-
             })
 
         } catch (error) {
@@ -315,7 +313,7 @@ class userServices {
     async deleteHousePost(data) {
         try {
             //check if the house exist
-            const { id } = data
+            const { id } = data //house id
             const findHouse = await House.findById({ _id: id })
             if (!findHouse) {
                 return res.status(401).send({
@@ -337,7 +335,6 @@ class userServices {
             });
         }
     }
-
 
 
 
@@ -403,37 +400,48 @@ class userServices {
 
 
 
+    //add houses to saved for later section
+    async savedForLater(data) {
+        try {
+            const { userId, houseId } = data
+            //Check the house exists
+            const findHouse = await House.findById({ _id: houseId })
+            if (!findHouse) {
+                return res.status(401).send({
+                    message: "House does not exist",
+                    success: false
+                })
+            }
+            //check if the user exist
+            const checkUser = await user.findById({ _id: userId })
+            if (!checkUser) {
+                return res.status(401).send({
+                    message: "user doesn't exist",
+                    success: false
+                })
+            }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            //if user exist get the savedItem section
+            let savedItems = checkUser.savedItem;
+            const saved = savedItems.push(houseId)
+            if (!saved) {
+                return res.status(403).send({
+                    message: "item not saved",
+                    success: false
+                })
+            }
+            return res.status(204).send({
+                message: 'Item saved for later',
+                success: true,
+                findHouse
+            })
+        } catch (error) {
+            return res.status(500).send({
+                message: 'MESSAGES.USER.SERVER_ERROR' + error,
+                success: false,
+            });
+        }
+    }
 }
 
 module.exports = new userServices()
-
