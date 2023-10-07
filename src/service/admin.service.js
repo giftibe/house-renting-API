@@ -49,7 +49,7 @@ class AdminServices {
     }
 
 
-    async loginUser(data) {
+    async loginAdmin(data) {
         try {
             const { email, password } = data
             //check if the user email exists in db

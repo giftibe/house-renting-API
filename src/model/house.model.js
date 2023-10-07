@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 const ENUM = require('../config/config.constant')
-const Seller = require('./seller.model')
+const user = require('./user.model')
 const uuid = require('uuid');
 
 
@@ -13,9 +13,9 @@ const houseModel = new Schema({
         unique: true,
     },
 
-    seller: {
+    user: {
         type: Schema.Types.ObjectId,
-        ref: 'Seller',
+        ref: 'user',
         require: true
     },
 
