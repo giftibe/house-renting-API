@@ -1,10 +1,16 @@
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
-const rounds = process.env.ROUNDS
+const uuid = require('uuid');
 const Schema = mongoose.Schema
 const ENUM = require('../config/config.constant')
+const rounds = process.env.ROUNDS
 
 const adminSchema = new Schema({
+    _id: {
+        type: String,
+        default: uuid.v4,
+        unique: true,
+    },
 
     email: {
         type: String,
