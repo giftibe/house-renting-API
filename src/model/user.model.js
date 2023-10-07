@@ -6,7 +6,7 @@ const uuid = require('uuid');
 const rounds = process.env.ROUNDS
 const Schema = mongoose.Schema
 
-const sellerSchema = new Schema({
+const userSchema = new Schema({
     _id: {
         type: String,
         default: uuid.v4,
@@ -52,15 +52,22 @@ const sellerSchema = new Schema({
         default: ENUM.MOBILE,
     },
 
-    houses: [{
+    ads: {
         type: Schema.Types.ObjectId,
+        ischecked: true,
         ref: 'House',
-        default: [],
-    }],
+        default: '',
+    },
 
     isVerified: {
         type: Boolean,
         default: false,
+    },
+
+    savedItem: {
+        type: Schema.Types.ObjectId,
+        ref: 'House',
+        default: ENUM.SAVED
     },
 
     isBlocked: {
@@ -88,5 +95,5 @@ sellerSchema.pre("findOneAndUpdate", async function (next) {
 });
 
 
-const seller = mongoose.Model('seller', sellerSchema)
-module.exports = seller
+const user = mongoose.Model('user', sellerSchema)
+module.exports = user

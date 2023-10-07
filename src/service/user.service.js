@@ -1,22 +1,23 @@
-const Seller = require('../model/seller.model')
+const user = require('../model/user.model')
+const House = require('../model/house.model')
 const Boom = require('@hapi/boom');
 const mailer = require('../utils/emailer')
 const generate_Template = require('../utils/template');
 const { subject1, secret } = process.env
 
 
-class SellerServices {
-    async createSeller(data) {
+class userServices {
+    async createuser(data) {
         try {
             const { email, password } = data;
             //check if email exist
-            const existingUser = await Seller.find({ email: email }, { _id: 1, password: 0 })
+            const existingUser = await user.find({ email: email }, { _id: 1, password: 0 })
             if (existingUser) {
                 return res.send(Boom.conflict('Email already exists'))
             }
 
             //save to data
-            await Seller.create({
+            await user.create({
                 email: email,
                 password: password
             })
@@ -48,7 +49,7 @@ class SellerServices {
         try {
             const { email, password } = data
             //check if the user email exists in db
-            const findUser = await Seller.find({ email: email })
+            const findUser = await user.find({ email: email })
 
 
             if (!findUser) {
@@ -100,15 +101,15 @@ class SellerServices {
 
 
 
-    //update an Seller
-    async updateASeller(data) {
+    //update an user
+    async updateAUser(data) {
         try {
             const { id } = data;
             // Check if valid id
 
-            const findUser = await Seller.findById({ _id: id });
+            const findUser = await user.findById({ _id: id });
             if (findUser) {
-                const updated = await Seller.findByIdAndUpdate({ _id: id }, data);
+                const updated = await user.findByIdAndUpdate({ _id: id }, data);
                 if (updated) {
                     return res.status(200).send({
                         message: 'MESSAGES.USER.ACCOUNT_UPDATED',
@@ -141,7 +142,7 @@ class SellerServices {
     //     @desc    Handles user logout
     //     *  @access  Private
 
-    async loggedOutSeller() {
+    async loggedOutUser() {
         try {
             const token = "";
             await res.cookie("token", token, { httpOnly: true });
@@ -159,25 +160,15 @@ class SellerServices {
     }
 
 
-
-
-
-
-
-
-
-
-
-
     //    @route   POST /api/v1/user/reset-password
     //     @desc    Sends reset password link via mail
     //     *  @access  Public
 
-    async sendSellerResetPasswordLink(data) {
+    async sendUserResetPasswordLink(data) {
         try {
             //check if the email exist in the database
             const { email } = data;
-            const userEmail = await Seller.find({ email: email });
+            const userEmail = await user.find({ email: email });
             if (!userEmail) {
                 return res.status(404).send({
                     message: 'MESSAGES.USER.EMAIL_NOTFOUND',
@@ -221,11 +212,11 @@ class SellerServices {
     //     @desc  Verifies link sent to the email checking the token and if the user exists using their ID
     //     *  @access  Unique
 
-    async checkSellerResetPasswordLink(data) {
+    async checkUserResetPasswordLink(data) {
         try {
             const { id, token } = data;
             //check if a user with the id exist in db
-            const checkUser = await Seller.findById({ _id: id });
+            const checkUser = await user.findById({ _id: id });
             if (!checkUser) {
                 return res.status(401).send({
                     message: 'MESSAGES.USER.ACCOUNT_NOT_REGISTERED',
@@ -254,17 +245,18 @@ class SellerServices {
         }
     }
 
+
     //      @route  PATCH /api/v1/user/setpassword/:id
     //     @desc    updates the password field
     //     *  @access  Private
 
-    async updateSellerPassword(data) {
+    async updateUserPassword(data) {
         try {
             //check if  the email exist
             const { id, password } = data;
 
 
-            const userfound = await Seller.findById({ _id: id });
+            const userfound = await user.findById({ _id: id });
             if (!userfound) {
                 return res.status(404).send({
                     message: 'MESSAGES.USER.EMAIL_NOTFOUND',
@@ -272,7 +264,7 @@ class SellerServices {
                 });
             }
             //generate new password and update it
-            await Seller.findByIdAndDelete(id, { password: password });
+            await user.findByIdAndDelete(id, { password: password });
             return res.status(201).send({
                 message: 'MESSAGES.USER.PASSWORD_UPDATED',
                 success: true,
@@ -286,12 +278,162 @@ class SellerServices {
     }
 
 
+    //create a house post
+
+    async postHouseAd(data) {
+        try {
+            const { id } = data //user id
+            let userFound = await user.findById({ _id: id })
+
+            if (!userFound) {
+                return res.status(403).send({
+                    message: "You are not authorized to perform this action",
+                    success: false
+                })
+            }
+            const newHousePost = await House.create({
+                user: id,
+                ...data
+            })
+            return res.status(201).send({
+                message: "House created successfully",
+                success: true,
+                newHousePost
+
+            })
+
+        } catch (error) {
+            return res.status(500).send({
+                message: 'MESSAGES.USER.SERVER_ERROR' + error,
+                success: false,
+            });
+        }
+    }
+
+    //delete my post
+
+    async deleteHousePost(data) {
+        try {
+            //check if the house exist
+            const { id } = data
+            const findHouse = await House.findById({ _id: id })
+            if (!findHouse) {
+                return res.status(401).send({
+                    message: "No such House post exist",
+                    success: false
+                })
+            }
+
+            await House.findByIdAndDelete({ _id: id })
+            return res.status(204).send({
+                message: "Post successfully deleted",
+                success: true
+            })
+
+        } catch (error) {
+            return res.status(500).send({
+                message: 'MESSAGES.USER.SERVER_ERROR' + error,
+                success: false,
+            });
+        }
+    }
+
+
+
+
+    //update my post
+    async updateHousePost(data) {
+        try {
+            const { id } = data
+            const findHouse = await House.findById({ _id: id })
+            if (!findHouse) {
+                return res.status(401).send({
+                    message: "No such House post exist",
+                    success: false
+                })
+            }
+            const updatedHouse = await House.findOneAndUpdate({ _id: id }, data)
+            return res.status(200).send({
+                message: "House post updated successfully",
+                success: true,
+                updatedHouse
+            })
+
+
+        } catch (error) {
+            return res.status(500).send({
+                message: 'MESSAGES.USER.SERVER_ERROR' + error,
+                success: false,
+            });
+        }
+    }
+
+    //get all my House posted
+    async getAllMyHouseAd(data) {
+        try {
+            const { id } = data
+            const getUser = await user.find({ _id: id })
+            if (!getUser) {
+                return res.status(404).send({
+                    message: "User does not exist",
+                    success: false,
+                })
+            }
+
+            const houses = await House.find({ user: id })
+            if (houses.length == 0) {
+                return res.status(403).json({
+                    message: "You have to add posted",
+                    success: false
+                })
+            }
+            return res.status(200).send({
+                message: "Houses has been found",
+                success: true,
+                houses
+            })
+
+        } catch (error) {
+            return res.status(500).send({
+                message: 'MESSAGES.USER.SERVER_ERROR' + error,
+                success: false,
+            });
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
-module.exports = new SellerServices()
+module.exports = new userServices()
 
-//post a house
-//update my post
-//delete my post
-//update account
-//get all my posts
