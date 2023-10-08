@@ -4,8 +4,7 @@ const mailer = require('../utils/emailer')
 const jwt = require('jsonwebtoken')
 const generate_Template = require('../utils/template');
 const user = require('../model/user.model');
-const { subject1, secret } = process.env
-
+const { subject1, SECRET_KEY } = process.env
 
 
 class AdminServices {
@@ -23,7 +22,7 @@ class AdminServices {
                 email: email,
                 password: password
             })
-            const verification_Token = jwt.sign({ email }, secret, {
+            const verification_Token = jwt.sign({ email }, SECRET_KEY, {
                 expiresIn: "30m",
             });
             const Link = `https://propell-ten.vercel.app/verifyMail/${encodeURIComponent(
@@ -49,7 +48,7 @@ class AdminServices {
 
     async loginAdmin(data) {
         try {
-            const { email, password } = data
+            const { email } = data
             //check if the user email exists in db
             const findUser = await Admin.find({ email: email })
 
@@ -63,7 +62,7 @@ class AdminServices {
 
             //check if users' email is verified
             if (findUser.isVerified === false) {
-                const verification_Token = jwt.sign({ email }, secret, {
+                const verification_Token = jwt.sign({ email }, SECRET_KEY, {
                     expiresIn: "30m",
                 });
                 const Link = `https://propell-ten.vercel.app/verifyMail/${encodeURIComponent(
@@ -81,17 +80,21 @@ class AdminServices {
             }
 
             //compare passwords with jwt
-            const isMatch = await bcrypt.compare(password, findUser.password);
+            const isMatch = await bcrypt.compare(data.password, findUser.password);
             if (!isMatch) {
                 return {
                     message: 'MESSAGES.USER.WRONG_PASSWORD',
                     success: false,
                 };
             }
+            const token = jwt.sign({ id: findUser.id }, SECRET_KEY);
+            const { password, ...data } = findUser.toJSON();
 
             return {
                 message: 'MESSAGES.USER_LOGGEDIN',
                 success: true,
+                data,
+                token
             }
         } catch (error) {
             return Boom.conflict('A conflict occured' + error);
@@ -231,7 +234,7 @@ class AdminServices {
                 password: userEmail.password
             };
 
-            const token = jwt.sign(payload, secret, { expiresIn: "30m" });
+            const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "30m" });
             const Link = `https://propell-ten.vercel.app/user/reset-password/${encodeURIComponent(
                 userEmail.id
             )}/${encodeURIComponent(token)}`;
@@ -274,7 +277,7 @@ class AdminServices {
             }
 
             try {
-                const decoded = jwt.verify(token, secret);
+                const decoded = jwt.verify(token, SECRET_KEY);
                 const isMatch = await bcrypt.compare(decoded.password, checkUser.password);
                 if (!decoded || !isMatch) {
                     return {

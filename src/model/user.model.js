@@ -53,7 +53,7 @@ const userSchema = new Schema({
         default: ENUM.MOBILE,
     },
 
-    ads: {
+    houses: {
         type: Schema.Types.ObjectId,
         ischecked: true,
         ref: 'House',
