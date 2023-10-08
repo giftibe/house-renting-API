@@ -7,7 +7,7 @@ const rounds = process.env.ROUNDS
 
 const adminSchema = new Schema({
 
-    customAdminId: { 
+    customAdminId: {
         type: String,
         default: uuid.v4,
         unique: true,

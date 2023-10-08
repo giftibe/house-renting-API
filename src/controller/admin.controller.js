@@ -114,8 +114,8 @@ class AdminController {
     async update_Admin(req, res) {
         try {
             const data = req.body
-            const id = req.params
-            const result = await updateAdmin(id, data)
+            const customAdminId = req.params
+            const result = await updateAdmin(customAdminId, data)
             return res.status(201).send({
                 success: true,
                 result
@@ -194,9 +194,9 @@ class AdminController {
     //     *  @access  Private
     async update_password(req, res) {
         try {
-            const { id } = req.params
+            const { customAdminId } = req.params
             const data = req.body
-            const result = await updatePassword(id, data)
+            const result = await updatePassword(customAdminId, data)
             return res.status(201).send({
                 success: true,
                 result

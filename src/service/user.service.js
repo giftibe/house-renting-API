@@ -90,7 +90,7 @@ class userServices {
                 });
             }
 
-            const token = jwt.sign({ id: findUser.id }, SECRET_KEY);
+            const token = jwt.sign({ customUserId: findUser.customUserId }, SECRET_KEY);
             const { password, ...data } = findUser.toJSON();
 
             return {
@@ -107,12 +107,14 @@ class userServices {
 
 
     // @desc  updates an user
-    async updateAUser(id, data) {
+    async updateAUser(customUserId, data) {
         try {
             // Check if valid id
-            const findUser = await user.findById({ _id: id });
+            const findUser = await user.findById({ customUserId: customUserId });
             if (findUser) {
-                const updated = await user.findByIdAndUpdate({ _id: id }, data);
+                const updated = await user.findByIdAndUpdate(
+                    { customUserId: customUserId },
+                    data);
                 if (updated) {
                     return {
                         message: 'MESSAGES.USER.ACCOUNT_UPDATED',
@@ -156,7 +158,7 @@ class userServices {
             //if the email exists send
             const payload = {
                 email: userEmail.email,
-                id: userEmail.id,
+                customUserId: userEmail.customUserId,
                 password: userEmail.password
             };
 
@@ -189,9 +191,11 @@ class userServices {
     // @desc confirm validity of reset password
     async checkUserResetPasswordLink(data) {
         try {
-            const { id, token } = data;
+            const { customUserId, token } = data;
             //check if a user with the id exist in db
-            const checkUser = await user.findById({ _id: id });
+            const checkUser = await user.findById(
+                { customUserId: customUserId }
+            );
             if (!checkUser) {
                 return {
                     message: 'MESSAGES.USER.ACCOUNT_NOT_REGISTERED',
@@ -201,10 +205,18 @@ class userServices {
 
             try {
 
-                jwt.verify(token, SECRET_KEY);
+                const isMatch = jwt.verify(token, SECRET_KEY);
+
+                if (!isMatch) {
+                    return {
+                        message: "Invalid Link",
+                        suucess: false
+                    }
+                }
                 return {
                     message: 'MESSAGES.USER.VALID_LINK',
                     success: true,
+                    isMatch
                 };
             } catch (error) {
                 return {
@@ -222,12 +234,10 @@ class userServices {
 
 
     //     @desc    updates the password field
-    async updateUserPassword(id, data) {
+    async updateUserPassword(customUserId, data) {
         try {
             //check if  the email exist
-            const { password } = data;
-
-            const userfound = await user.findById({ _id: id });
+            const userfound = await user.findById({ customUserId: customUserId });
             if (!userfound) {
                 return {
                     message: 'MESSAGES.USER.EMAIL_NOTFOUND',
@@ -235,7 +245,9 @@ class userServices {
                 };
             }
             //generate new password and update it
-            await user.findByIdAndDelete(id, { password: data.password });
+            await user.findByIdAndDelete(
+                { customUserId: customUserId },
+                { password: data.password });
             return {
                 message: 'MESSAGES.USER.PASSWORD_UPDATED',
                 success: true,
@@ -250,10 +262,10 @@ class userServices {
 
 
     // @desc create a house post
-    async postHouseAd(id, data) {
+    async postHouseAd(customUserId, data) {
         try {
             //user id
-            let userFound = await user.findById({ _id: id })
+            let userFound = await user.findById({ customUserId: customUserId })
 
             if (!userFound) {
                 return {
@@ -262,7 +274,7 @@ class userServices {
                 }
             }
             const newHousePost = await House.create({
-                user: id,
+                user: customUserId,
                 ...data
             })
             return {
@@ -284,8 +296,8 @@ class userServices {
     async deleteHousePost(data) {
         try {
             //check if the house exist
-            const { id } = data //house id
-            const findHouse = await House.findById({ _id: id })
+            const { customHouseId } = data //house id
+            const findHouse = await House.findById({ customHouseId: customHouseId })
             if (!findHouse) {
                 return {
                     message: "No such House post exist",
@@ -293,7 +305,7 @@ class userServices {
                 }
             }
 
-            await House.findByIdAndDelete({ _id: id })
+            await House.findByIdAndDelete({ customHouseId: customHouseId })
             return {
                 message: "Post successfully deleted",
                 success: true
@@ -309,16 +321,16 @@ class userServices {
 
 
     // @desc     update my post
-    async updateHousePost(id, data) {
+    async updateHousePost(customHouseId, data) {
         try {
-            const findHouse = await House.findById({ _id: id })
+            const findHouse = await House.findById({ customHouseId: customHouseId })
             if (!findHouse) {
                 return {
                     message: "No such House post exist",
                     success: false
                 }
             }
-            const updatedHouse = await House.findOneAndUpdate({ _id: id }, data)
+            const updatedHouse = await House.findOneAndUpdate({ customHouseId: customHouseId }, data)
             return {
                 message: "House post updated successfully",
                 success: true,
@@ -335,8 +347,8 @@ class userServices {
     // @desc    gets all my House posted
     async getAllMyHouseAd(data) {
         try {
-            const { id } = data
-            const getUser = await user.find({ _id: id })
+            const { customUserId } = data
+            const getUser = await user.find({ customUserId: customUserId })
             if (!getUser) {
                 return {
                     message: "User does not exist",
@@ -369,9 +381,9 @@ class userServices {
     // @desc adds houses to saved for later section
     async savedForLater(data) {
         try {
-            const { userId, houseId } = data
+            const { customUserId, customHouseId } = data
             //Check the house exists
-            const findHouse = await House.findById({ _id: houseId })
+            const findHouse = await House.findById({ customHouseId: customHouseId })
             if (!findHouse) {
                 return {
                     message: "House does not exist",
@@ -379,7 +391,7 @@ class userServices {
                 }
             }
             //check if the user exist
-            const checkUser = await user.findById({ _id: userId })
+            const checkUser = await user.findById({ _id: customUserId })
             if (!checkUser) {
                 return {
                     message: "user doesn't exist",
@@ -389,7 +401,7 @@ class userServices {
 
             //if user exist get the savedItem section
             let savedItems = checkUser.savedItem;
-            const saved = savedItems.unshift(houseId)
+            const saved = savedItems.unshift(customHouseId)
             if (!saved) {
                 return {
                     message: "item not saved",

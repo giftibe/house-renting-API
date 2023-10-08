@@ -63,7 +63,7 @@ class userController {
     async update_user(req, res) {
         try {
             const data = req.body
-            const { id } = req.params
+            const { customUserId } = req.params
             const result = await updateAUser(id, data)
             return res.status(200).send({
                 message: result,
@@ -146,8 +146,8 @@ class userController {
     async update_User_Password(req, res) {
         try {
             const data = req.body
-            const { id } = req.params
-            const result = await updateUserPassword(id, data)
+            const { customUserId } = req.params
+            const result = await updateUserPassword(customUserId, data)
             return res.status(200).send({
                 success: true,
                 message: result
@@ -167,8 +167,8 @@ class userController {
     async post_House_Ad(req, res) {
         try {
             const data = req.body
-            const { id } = req.params
-            const result = await postHouseAd(id, data)
+            const { customUserId } = req.params
+            const result = await postHouseAd(customUserId, data)
             return res.status(200).send({
                 success: true,
                 message: result
@@ -210,8 +210,8 @@ class userController {
     async update_House_Post(req, res) {
         try {
             const data = req.body
-            const { id } = req.params
-            const result = await updateHousePost(id, data)
+            const { customHouseId } = req.params
+            const result = await updateHousePost(customHouseId, data)
             return res.status(200).send({
                 success: true,
                 message: result
