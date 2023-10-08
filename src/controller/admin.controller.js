@@ -13,7 +13,6 @@ const {
 } = AdminServices
 
 class AdminController {
-
     
     //     @desc    signup an Admin
     //     *  @access  Private
