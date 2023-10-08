@@ -1,13 +1,12 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
-const ENUM = require('../config/config.constant')
 const user = require('./user.model')
 const uuid = require('uuid');
 
 
 const houseModel = new Schema({
 
-    _id: {
+    customHouseId: { 
         type: String,
         default: uuid.v4,
         unique: true,
@@ -54,12 +53,6 @@ const houseModel = new Schema({
         type: Number,
         required: true,
         trim: true,
-    },
-
-    option: {
-        type: [ENUM.OPTION[0], ENUM.OPTION[1]],
-        required: true,
-        default: ENUM.OPTION[0]
     },
 
     date_posted: {

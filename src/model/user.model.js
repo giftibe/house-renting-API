@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
-const ENUM = require('../config/config.constant')
+const { ENUM } = require('../config/config.constant')
 const House = require('./house.model')
 const uuid = require('uuid');
 const rounds = process.env.ROUNDS
@@ -8,7 +8,7 @@ const Schema = mongoose.Schema
 
 const userSchema = new Schema({
 
-    _id: {
+    customUserId: {
         type: String,
         default: uuid.v4,
         unique: true,
@@ -78,7 +78,7 @@ const userSchema = new Schema({
 
 })
 
-sellerSchema.pre("save", async function (next) {
+userSchema.pre("save", async function (next) {
     if (this.isModified("password") || this.isNew("password")) {
         const salt = await bcrypt.genSalt(rounds);
         this.password = await bcrypt.hash(this.password, salt);
@@ -86,7 +86,7 @@ sellerSchema.pre("save", async function (next) {
     next();
 });
 
-sellerSchema.pre("findOneAndUpdate", async function (next) {
+userSchema.pre("findOneAndUpdate", async function (next) {
     const update = this.getUpdate();
     if (update.password) {
         const salt = await bcrypt.genSalt(rounds);
@@ -96,5 +96,5 @@ sellerSchema.pre("findOneAndUpdate", async function (next) {
 });
 
 
-const user = mongoose.Model('user', userSchema)
+const user = mongoose.model('user', userSchema)
 module.exports = user

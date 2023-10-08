@@ -1,4 +1,5 @@
 const userServices = require('../service/user.service')
+
 const {
     createuser,
     loginUser,
@@ -235,7 +236,6 @@ class userController {
                 success: true,
                 message: result
             })
-
         } catch (error) {
             return res.status(200).send({
                 message: 'MESSAGES.USER.SERVER_ERROR ' + error,
