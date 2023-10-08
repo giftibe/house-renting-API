@@ -2,7 +2,6 @@ ENUM = {
     MOBILE: 0,
     FIRSTNAME: '',
     LASTNAME: '',
-    OPTION: ['SELL', 'RENT'],
     COMPANY: '',
     SAVED: ''
 }

@@ -2,11 +2,12 @@ const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
 const uuid = require('uuid');
 const Schema = mongoose.Schema
-const ENUM = require('../config/config.constant')
+const { ENUM } = require('../config/config.constant')
 const rounds = process.env.ROUNDS
 
 const adminSchema = new Schema({
-    _id: {
+
+    customAdminId: { 
         type: String,
         default: uuid.v4,
         unique: true,
@@ -70,5 +71,5 @@ adminSchema.pre("findOneAndUpdate", async function (next) {
 });
 
 
-const Admin = mongoose.Model('admin', adminSchema)
+const Admin = mongoose.model('admin', adminSchema)
 module.exports = Admin

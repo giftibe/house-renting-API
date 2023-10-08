@@ -4,6 +4,7 @@ const Boom = require('@hapi/boom');
 const mailer = require('../utils/emailer')
 const generate_Template = require('../utils/template');
 const { subject1, SECRET_KEY } = process.env
+const path = require('path')
 
 
 class userServices {
@@ -37,7 +38,7 @@ class userServices {
             mailer({ subject: subject1, template: generate_Template, email: email })
 
             return {
-                message: MESSAGES.USER.CREATED,
+                message: 'MESSAGES.USER.CREATED',
                 success: true,
             };
         }

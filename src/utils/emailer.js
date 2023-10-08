@@ -1,6 +1,6 @@
 const nodemailer = require("nodemailer");
 const { EMAIL, APP_PASSWORD } = process.env;
-const { MESSAGES } = require("../config/constant.config");
+const { MESSAGES } = require("../config/config.constant");
 const path = require('path')
 
 
@@ -28,12 +28,12 @@ Mailer = async (subject, template, email) => {
             // Email sent successfully
         } catch (error) {
             console.error(error);
-            throw new Error(MESSAGES.USER.EMAIL_UNSENT + error);
+            throw new Error('MESSAGES.USER.EMAIL_UNSENT' + error);
         }
 
     } catch (error) {
         console.error(error);
-        throw new Error(MESSAGES.USER.EMAIL_UNSENT + error);
+        throw new Error('MESSAGES.USER.EMAIL_UNSENT' + error);
     }
 }
 
