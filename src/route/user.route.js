@@ -19,15 +19,15 @@ const {
 
 userRouter.post('/user/register', create_user)
 userRouter.post('/user/login', login_user)
-userRouter.patch('/user/updateuser', update_user)
+userRouter.patch('/user/updateuser/:customUserId', update_user)
 userRouter.post('/user/logout', logOutUser)
 userRouter.post('/user/resetpassword', sendUser_ResetPassword_Link)
-userRouter.get('/user/paswordcheck/:id', checkUser_ResetPassword_Link)
-userRouter.patch('/user/setpassword/:id', update_User_Password)
-userRouter.post('/user/createHouse/:id', post_House_Ad)
-userRouter.delete('/user/deletehouse/:id', delete_House_Post)
-userRouter.patch('/user/updateHouse/:id', update_House_Post)
-userRouter.get('/user/allHouses/:id', get_All_MyHouse_Ads)
-userRouter.get('/user/houses/saved/:userId/:houseId', saved_For_Later)
+userRouter.get('/user/paswordcheck/:customUserId/:token', checkUser_ResetPassword_Link)
+userRouter.patch('/user/setpassword/:customUserId', update_User_Password)
+userRouter.post('/user/createHouse/:customUserId', post_House_Ad)
+userRouter.delete('/user/deletehouse/:customHouseId', delete_House_Post)
+userRouter.patch('/user/updateHouse/:customHouseId', update_House_Post)
+userRouter.get('/user/allHouses/:customUserId', get_All_MyHouse_Ads)
+userRouter.get('/user/houses/saved/:customUserId/:customHouseId', saved_For_Later)
 
 module.exports = userRouter

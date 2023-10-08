@@ -1,6 +1,7 @@
 const Admin = require('../model/admin.model')
 const Boom = require('@hapi/boom');
 const mailer = require('../utils/emailer')
+const path = require('path')
 const jwt = require('jsonwebtoken')
 const generate_Template = require('../utils/template');
 const user = require('../model/user.model');
@@ -87,7 +88,7 @@ class AdminServices {
                     success: false,
                 };
             }
-            const token = jwt.sign({ id: findUser.id }, SECRET_KEY);
+            const token = jwt.sign({ customAdminId: findUser.customAdminId }, SECRET_KEY);
             const { password, ...data } = findUser.toJSON();
 
             return {
@@ -105,8 +106,8 @@ class AdminServices {
     //get an admin
     async getAnAdmin(data) {
         try {
-            const { id } = data
-            const findUser = await Admin.findById({ _id: id }, { _id: 1, password: 0 })
+            const { customAdminId } = data
+            const findUser = await Admin.findById({ customAdminId: customAdminId }, { _id: 1, password: 0 })
             if (!findUser) {
                 return {
                     message: 'No User Found',
@@ -153,8 +154,11 @@ class AdminServices {
     //gets a user
     async getAUser(data) {
         try {
-            const { id } = data
-            const User = await user.findById({ _id: id }, { _id: 1, password: 0 })
+            const { customUserId } = data
+            const User = await user.findById(
+                { customUserId: customUserId },
+                { _id: 1, password: 0 }
+            )
             if (!User) {
                 return {
                     message: 'MESSAGES.USER.NO_USER',
@@ -175,13 +179,13 @@ class AdminServices {
 
 
     //update an Admin
-    async updateAdmin(id, data) {
+    async updateAdmin(customAdminId, data) {
         try {
             // Check if valid id
-            const findUser = await Admin.findById({ _id: id });
+            const findUser = await Admin.findById({ customAdminId: customAdminId });
             if (findUser) {
                 const updated = await Admin.findByIdAndUpdate(
-                    { _id: id },
+                    { customAdminId: customAdminId },
                     ...data
                 );
                 if (updated) {
@@ -230,7 +234,7 @@ class AdminServices {
             //if the email exists send
             const payload = {
                 email: userEmail.email,
-                id: userEmail.id,
+                customAdminId: userEmail.customAdminId,
                 password: userEmail.password
             };
 
@@ -266,9 +270,9 @@ class AdminServices {
 
     async checkAdminResetPasswordLink(data) {
         try {
-            const { id, token } = data;
+            const { customAdminId, token } = data;
             //check if a user with the id exist in db
-            const checkUser = await Admin.findById({ _id: id });
+            const checkUser = await Admin.findById({ customAdminId: customAdminId });
             if (!checkUser) {
                 return {
                     message: 'MESSAGES.USER.ACCOUNT_NOT_REGISTERED',
@@ -304,12 +308,14 @@ class AdminServices {
     //     @desc    updates the password field
     //     *  @access  Private
 
-    async updatePassword(id, data) {
+    async updatePassword(customAdminId, data) {
         try {
             //check if  the email exist
             const { password } = data;
 
-            const userfound = await Admin.findById({ _id: id });
+            const userfound = await Admin.findById({
+                customAdminId: customAdminId
+            });
             if (!userfound) {
                 return {
                     message: 'MESSAGES.USER.EMAIL_NOTFOUND',
@@ -317,7 +323,7 @@ class AdminServices {
                 };
             }
             //generate new password and update it
-            await Admin.findByIdAndDelete({ _id: id }, { password: password });
+            await Admin.findByIdAndDelete({ customAdminId: customAdminId }, { password: password });
             return {
                 message: 'MESSAGES.USER.PASSWORD_UPDATED',
                 success: true,
