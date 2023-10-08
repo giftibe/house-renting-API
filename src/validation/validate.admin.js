@@ -17,8 +17,6 @@ const updateUser = Joi.object({
   firstName: Joi.string(),
   lastName: Joi.string(),
   mobile: Joi.number(),
-  country: Joi.string(),
-  state: Joi.string(),
   isVerified: Joi.boolean()
 })
 
@@ -43,7 +41,7 @@ const validate_Account_Creation_Inputs = (req, res, next) => {
   }
 }
 
-const validate_User_Login_Inputs = (req, res, next) => {
+const validate_Login_Inputs = (req, res, next) => {
   try {
     const validateInput = loginUserSchema.validate(req.body)
 
@@ -62,7 +60,7 @@ const validate_User_Login_Inputs = (req, res, next) => {
   }
 }
 
-const validate_User_Update = (req, res, next) => {
+const validate_Admin_Update = (req, res, next) => {
   try {
     const validateInput = updateUser.validate(req.body)
 
@@ -79,4 +77,4 @@ const validate_User_Update = (req, res, next) => {
     res.status(500).send(err)
   }
 }
-module.exports = { validate_Account_Creation_Inputs, validate_User_Login_Inputs, validate_User_Update }
+module.exports = { validate_Account_Creation_Inputs, validate_Login_Inputs, validate_Admin_Update }
