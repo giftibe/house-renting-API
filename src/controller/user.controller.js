@@ -22,6 +22,7 @@ class userController {
     //     *  @access  Private
     async create_user(req, res) {
         try {
+
             const data = req.body
             const result = await createuser(data)
             return res.status(200).send({
