@@ -13,7 +13,10 @@ MESSAGES = {
     },
 
     USER: {
-        EMAIL_UNSENT: 'Email not sent '
+        EMAIL_UNSENT: 'Email not sent to receiver ',
+        CREATED: 'Account created successfully ',
+        EMAIL_DUPLICATE: 'Email already exist ',
+        ERROR: 'An error occured '
     }
 }
 
