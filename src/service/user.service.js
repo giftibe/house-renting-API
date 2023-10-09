@@ -7,6 +7,7 @@ const generate_Template = require('../utils/template');
 const { subject1 } = process.env
 const SECRET_KEY = process.env.SECRET_KEY
 const path = require('path')
+const { MESSAGES } = require('../config/config.constant')
 
 
 class userServices {
@@ -19,11 +20,11 @@ class userServices {
             //check if email exist
             const existingUser = await user.find({ email: email }, { _id: 1, password: 0 })
             if (existingUser.length !== 0) {
-                return Boom.conflict('Email already exists')
+                return Boom.conflict(MESSAGES.USER.EMAIL_DUPLICATE)
             }
 
             //save to data
-            const newUser = await user.create({
+            await user.create({
                 email: email,
                 password: password
             })
@@ -38,15 +39,14 @@ class userServices {
 
             //send email to verify account
             // using nodemailer to send the email
-            generate_Template(Link, htmlFileDir)
-            mailer({ subject: subject1, template: generate_Template, email: email })
+            const template = generate_Template(Link, htmlFileDir)
+            mailer(subject1, template, email)
 
-            return {
-                message: 'MESSAGES.USER.CREATED',
-            };
+            return MESSAGES.USER.CREATED
+
         }
         catch (error) {
-            return Boom.conflict('there was a conflict' + error);
+            return Boom.conflict(MESSAGES.USER.ERROR + error);
         }
     }
 
@@ -65,7 +65,7 @@ class userServices {
                 }
             }
 
-            //check if users' email is verified
+            // check if users' email is verified
             if (findUser.isVerified === false) {
                 const verification_Token = jwt.sign({ email }, SECRET_KEY, {
                     expiresIn: "30m",
@@ -76,8 +76,8 @@ class userServices {
                 const htmlFileDir = path.join(__dirname, "../client/verify-1.html");
 
                 //send email to verify account
-                generate_Template(Link, htmlFileDir)
-                mailer({ subject: subject1, template: generate_Template, email: email })
+                const template = generate_Template(Link, htmlFileDir)
+                mailer(subject1, template, email)
                 return {
                     message: 'MESSAGES.USER.VERIFY_EMAIL',
                     success: false,
