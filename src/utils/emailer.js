@@ -9,7 +9,7 @@ Mailer = async (subject, template, email) => {
         const transporter = nodemailer.createTransport({
             service: "yahoo",
             auth: {
-                user: senderEmail,
+                user: EMAIL,
                 pass: APP_PASSWORD,
             },
         });
@@ -25,15 +25,20 @@ Mailer = async (subject, template, email) => {
         // Sending the email
         try {
             await transporter.sendMail(mailOptions);
+            console.log('email sent')
             // Email sent successfully
         } catch (error) {
-            console.error(error);
-            throw new Error('MESSAGES.USER.EMAIL_UNSENT' + error);
+            return {
+                message: 'MESSAGES.USER.EMAIL_UNSENT' + error,
+                success: false,
+            };
         }
 
     } catch (error) {
-        console.error(error);
-        throw new Error('MESSAGES.USER.EMAIL_UNSENT' + error);
+        return {
+            message: 'MESSAGES.USER.EMAIL_UNSENT' + error,
+            success: false,
+        };
     }
 }
 

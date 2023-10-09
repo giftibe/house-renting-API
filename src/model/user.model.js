@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt')
 const { ENUM } = require('../config/config.constant')
 const House = require('./house.model')
 const uuid = require('uuid');
-const rounds = process.env.ROUNDS
+const rounds = +process.env.ROUNDS
 const Schema = mongoose.Schema
 
 const userSchema = new Schema({
@@ -53,12 +53,12 @@ const userSchema = new Schema({
         default: ENUM.MOBILE,
     },
 
-    houses: {
-        type: Schema.Types.ObjectId,
-        ischecked: true,
-        ref: 'House',
-        default: '',
-    },
+    // houses: {
+    //     type: Schema.Types.ObjectId,
+    //     ischecked: true,
+    //     ref: 'House',
+    //     default: '',
+    // },
 
     isVerified: {
         type: Boolean,

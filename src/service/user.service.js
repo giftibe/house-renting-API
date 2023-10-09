@@ -2,8 +2,10 @@ const user = require('../model/user.model')
 const House = require('../model/house.model')
 const Boom = require('@hapi/boom');
 const mailer = require('../utils/emailer')
+const jwt = require('jsonwebtoken')
 const generate_Template = require('../utils/template');
-const { subject1, SECRET_KEY } = process.env
+const { subject1 } = process.env
+const SECRET_KEY = process.env.SECRET_KEY
 const path = require('path')
 
 
@@ -13,17 +15,19 @@ class userServices {
     async createuser(data) {
         try {
             const { email, password } = data;
+
             //check if email exist
             const existingUser = await user.find({ email: email }, { _id: 1, password: 0 })
-            if (existingUser) {
+            if (existingUser.length !== 0) {
                 return Boom.conflict('Email already exists')
             }
 
             //save to data
-            await user.create({
+            const newUser = await user.create({
                 email: email,
                 password: password
             })
+
             const verification_Token = jwt.sign({ email }, SECRET_KEY, {
                 expiresIn: "30m",
             });
@@ -39,7 +43,6 @@ class userServices {
 
             return {
                 message: 'MESSAGES.USER.CREATED',
-                success: true,
             };
         }
         catch (error) {
