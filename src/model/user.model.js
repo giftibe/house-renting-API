@@ -53,12 +53,12 @@ const userSchema = new Schema({
         default: ENUM.MOBILE,
     },
 
-    // houses: {
-    //     type: Schema.Types.ObjectId,
-    //     ischecked: true,
-    //     ref: 'House',
-    //     default: '',
-    // },
+    houseAds: [{
+        type: Schema.Types.ObjectId,
+        ref: 'House',
+        ischecked: true,
+        default: '',
+    }],
 
     isVerified: {
         type: Boolean,

@@ -65,10 +65,9 @@ class userController {
         try {
             const data = req.body
             const { customUserId } = req.params
-            const result = await updateAUser(id, data)
+            const result = await updateAUser(customUserId, data)
             return res.status(200).send({
-                message: result,
-                success: true
+                result: result,
             })
         } catch (error) {
             res.status(500).send({
@@ -90,12 +89,10 @@ class userController {
             return res.status(200).send({
                 message: 'MESSAGES.USER.LOGGEDOUT',
                 token: token,
-                success: true,
             });
         } catch (error) {
             return res.status(200).send({
-                message: 'MESSAGES.USER.SERVER_ERROR ' + error,
-                success: false,
+                message: MESSAGES.USER.ERROR + error,
             });
         }
     }
@@ -108,13 +105,11 @@ class userController {
             const data = req.body
             const result = await sendUserResetPasswordLink(data)
             return res.status(200).send({
-                message: result,
-                success: true
+                result: result,
             })
         } catch (error) {
             return res.status(200).send({
-                message: 'MESSAGES.USER.SERVER_ERROR ' + error,
-                success: false,
+                message: MESSAGES.USER.ERROR + error,
             });
         }
 
@@ -130,12 +125,10 @@ class userController {
             const result = await checkUserResetPasswordLink(data)
             return res.status(200).send({
                 message: result,
-                success: true
             })
         } catch (error) {
             return res.status(200).send({
                 message: 'MESSAGES.USER.SERVER_ERROR ' + error,
-                success: false,
             });
         }
     }
@@ -150,13 +143,11 @@ class userController {
             const { customUserId } = req.params
             const result = await updateUserPassword(customUserId, data)
             return res.status(200).send({
-                success: true,
-                message: result
+                result: result
             })
         } catch (error) {
             return res.status(200).send({
                 message: 'MESSAGES.USER.SERVER_ERROR ' + error,
-                success: false,
             });
         }
     }
@@ -169,16 +160,14 @@ class userController {
         try {
             const data = req.body
             const { customUserId } = req.params
-            const result = await postHouseAd(customUserId, data)
+            const result = await postHouseAd(customUserId, data)          
             return res.status(200).send({
-                success: true,
                 message: result
             })
 
         } catch (error) {
             return res.status(200).send({
                 message: 'MESSAGES.USER.SERVER_ERROR ' + error,
-                success: false,
             });
         }
     }
@@ -192,14 +181,12 @@ class userController {
             const data = req.params
             const result = await deleteHousePost(data)
             return res.status(200).send({
-                success: true,
                 message: result
             })
 
         } catch (error) {
             return res.status(200).send({
                 message: 'MESSAGES.USER.SERVER_ERROR ' + error,
-                success: false,
             });
         }
     }
@@ -214,13 +201,11 @@ class userController {
             const { customHouseId } = req.params
             const result = await updateHousePost(customHouseId, data)
             return res.status(200).send({
-                success: true,
                 message: result
             })
         } catch (error) {
             return res.status(200).send({
                 message: 'MESSAGES.USER.SERVER_ERROR ' + error,
-                success: false,
             });
         }
     }
@@ -234,13 +219,11 @@ class userController {
             const data = req.params
             const result = await getAllMyHouseAd(data)
             return res.status(200).send({
-                success: true,
                 message: result
             })
         } catch (error) {
             return res.status(200).send({
                 message: 'MESSAGES.USER.SERVER_ERROR ' + error,
-                success: false,
             });
         }
     }
@@ -254,14 +237,12 @@ class userController {
             const data = req.params
             const result = await savedForLater(data)
             return res.status(200).send({
-                success: true,
                 message: result
             })
 
         } catch (error) {
             return res.status(200).send({
                 message: 'MESSAGES.USER.SERVER_ERROR ' + error,
-                success: false,
             });
         }
     }
