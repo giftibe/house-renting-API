@@ -30,7 +30,7 @@ class userServices {
             })
 
             const verification_Token = jwt.sign({ email }, SECRET_KEY, {
-                expiresIn: "30m",
+                expiresIn: "5m",
             });
             const Link = `https://propell-ten.vercel.app/verifyMail/${encodeURIComponent(
                 verification_Token
@@ -38,7 +38,6 @@ class userServices {
             const htmlFileDir = path.join(__dirname, "../client/verify-1.html");
 
             //send email to verify account
-            // using nodemailer to send the email
             const template = generate_Template(Link, htmlFileDir)
             mailer(subject1, template, email)
 
@@ -65,24 +64,25 @@ class userServices {
                 }
             }
 
-            // check if users' email is verified
-            if (findUser.isVerified === false) {
-                const verification_Token = jwt.sign({ email }, SECRET_KEY, {
-                    expiresIn: "30m",
-                });
-                const Link = `https://propell-ten.vercel.app/verifyMail/${encodeURIComponent(
-                    verification_Token
-                )}`;
-                const htmlFileDir = path.join(__dirname, "../client/verify-1.html");
+            // @check if users' email is verified
 
-                //send email to verify account
-                const template = generate_Template(Link, htmlFileDir)
-                mailer(subject1, template, email)
-                return {
-                    message: 'MESSAGES.USER.VERIFY_EMAIL',
-                    success: false,
-                };
-            }
+            // if (findUser.isVerified === false) {
+            //     const verification_Token = jwt.sign({ email }, SECRET_KEY, {
+            //         expiresIn: "5m",
+            //     });
+            //     const Link = `https://propell-ten.vercel.app/verifyMail/${encodeURIComponent(
+            //         verification_Token
+            //     )}`;
+            //     const htmlFileDir = path.join(__dirname, "../client/verify-1.html");
+
+            //     //send email to verify account
+            //     const template = generate_Template(Link, htmlFileDir)
+            //     mailer(subject1, template, email)
+            //     return {
+            //         message: 'MESSAGES.USER.VERIFY_EMAIL',
+            //         success: false,
+            //     };
+            // }
 
             //compare passwords with jwt
             const isMatch = await bcrypt.compare(data.password, findUser.password);
@@ -109,15 +109,17 @@ class userServices {
 
 
 
-    // @desc  updates an user
+    // @desc  updates an user#
     async updateAUser(customUserId, data) {
         try {
             // Check if valid id
-            const findUser = await user.findById({ customUserId: customUserId });
+            const findUser = await user.findOne({ customUserId: customUserId });
             if (findUser) {
-                const updated = await user.findByIdAndUpdate(
-                    { customUserId: customUserId },
-                    data);
+                const updated = await user.findOneAndUpdate(
+                    { customUserId: customUserId }, // Use the ObjectId
+                    data,
+                    { new: true } // To return the updated document
+                );
                 if (updated) {
                     return {
                         message: 'MESSAGES.USER.ACCOUNT_UPDATED',
@@ -136,22 +138,23 @@ class userServices {
                     message: 'MESSAGES.USER.ACCOUNT_NOT_REGISTERED',
                 };
             }
-
         } catch (error) {
             return {
-                message: 'MESSAGES.USER.ERROR' + error.message,
+                message: 'MESSAGES.USER.ERROR ' + error,
                 success: false,
             };
         }
     }
 
 
-    // @desc  sends reset password link to user email
+
+    // @desc  sends reset password link to user email#
     async sendUserResetPasswordLink(data) {
         try {
             //check if the email exist in the database
             const { email } = data;
             const userEmail = await user.find({ email: email });
+            // console.log(userEmail)
             if (!userEmail) {
                 return {
                     message: 'MESSAGES.USER.EMAIL_NOTFOUND',
@@ -165,9 +168,10 @@ class userServices {
                 password: userEmail.password
             };
 
-            const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "30m" });
+            const userID = userEmail[0].customUserId
+            const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "5m" });
             const Link = `https://propell-ten.vercel.app/user/reset-password/${encodeURIComponent(
-                userEmail.id
+                userID
             )}/${encodeURIComponent(token)}`;
 
             //email sending
@@ -175,89 +179,89 @@ class userServices {
             const subject2 = "Reset Password";
 
             // using nodemailer to send the email
-            generate_Template(Link, htmlFileDir)
-            mailer({ subject: subject2, template: generate_Template, email: email })
+            const template = generate_Template(Link, htmlFileDir)
+            mailer(subject2, template, email)
 
             return {
                 success: true,
-                message: 'MESSAGES.USER.VERIFY_EMAIL_SENT',
+                message: MESSAGES.USER.RESET_PASSWORD_LINK_SENT,
             };
         } catch (error) {
             return {
-                message: 'MESSAGES.USER.SERVER_ERROR' + error,
+                message: MESSAGES.USER.ERROR + error,
                 success: false,
             };
         }
     }
 
 
-    // @desc confirm validity of reset password
+    // @desc confirm validity of reset password#
     async checkUserResetPasswordLink(data) {
         try {
             const { customUserId, token } = data;
             //check if a user with the id exist in db
-            const checkUser = await user.findById(
+            const checkUser = await user.find(
                 { customUserId: customUserId }
             );
             if (!checkUser) {
                 return {
-                    message: 'MESSAGES.USER.ACCOUNT_NOT_REGISTERED',
+                    message: MESSAGES.USER.ACCOUNT_NOT_REGISTERED,
                     success: false,
                 };
             }
 
+
             try {
-
                 const isMatch = jwt.verify(token, SECRET_KEY);
-
                 if (!isMatch) {
                     return {
-                        message: "Invalid Link",
+                        message: MESSAGES.USER.INVALID_LINK,
                         suucess: false
                     }
                 }
                 return {
-                    message: 'MESSAGES.USER.VALID_LINK',
+                    message: MESSAGES.USER.VALID_LINK,
                     success: true,
                     isMatch
                 };
             } catch (error) {
                 return {
-                    message: 'MESSAGES.USER.INVALID_LINK' + error,
+                    message: MESSAGES.USER.INVALID_LINK + error,
                     success: false,
                 };
             }
         } catch (error) {
             return {
-                message: 'MESSAGES.USER.SERVER_ERROR' + error,
+                message: MESSAGES.USER.ERROR + error,
                 success: false,
             };
         }
     }
 
 
-    //     @desc    updates the password field
+    //     @desc    updates the password field#
     async updateUserPassword(customUserId, data) {
         try {
             //check if  the email exist
-            const userfound = await user.findById({ customUserId: customUserId });
+            const { password } = data
+            const userfound = await user.findOne({ customUserId: customUserId });
             if (!userfound) {
                 return {
-                    message: 'MESSAGES.USER.EMAIL_NOTFOUND',
+                    message: MESSAGES.USER.ACCOUNT_NOT_REGISTERED,
                     success: false,
                 };
             }
             //generate new password and update it
-            await user.findByIdAndDelete(
+            await user.findOneAndUpdate(
                 { customUserId: customUserId },
-                { password: data.password });
+                { password: password });
             return {
-                message: 'MESSAGES.USER.PASSWORD_UPDATED',
+                message: MESSAGES.USER.PASSWORD_UPDATED,
                 success: true,
             };
         } catch (error) {
             return {
-                message: 'MESSAGES.USER.SERVER_ERROR' + error,
+                message: MESSAGES.USER.ERROR + error,
                 success: false,
             };
         }
@@ -268,7 +272,7 @@ class userServices {
     async postHouseAd(customUserId, data) {
         try {
             //user id
-            let userFound = await user.findById({ customUserId: customUserId })
+            let userFound = await user.findOne({ customUserId: customUserId })
 
             if (!userFound) {
                 return {
@@ -280,6 +284,15 @@ class userServices {
                 user: customUserId,
                 ...data
             })
+
+
+            // Update the user document with the populated house details
+            await user.findOneAndUpdate(
+                { customUserId: customUserId },
+                { $push: { houseAds: newHousePost._id } },
+                { new: true } // To return the updated user document
+            ).populate('user');
+
             return {
                 message: "House created successfully",
                 success: true,

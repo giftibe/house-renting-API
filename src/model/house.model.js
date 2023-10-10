@@ -6,16 +6,16 @@ const uuid = require('uuid');
 
 const houseModel = new Schema({
 
-    customHouseId: { 
+    customHouseId: {
         type: String,
         default: uuid.v4,
         unique: true,
     },
 
     user: {
-        type: Schema.Types.ObjectId,
-        ref: 'user',
-        require: true
+        type: String,
+        required: true,
+        trim: true
     },
 
     title: {
