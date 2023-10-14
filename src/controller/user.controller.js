@@ -44,11 +44,10 @@ class userController {
     //     *  @access  Private
     async login_user(req, res) {
         try {
-            const data = req.body
-            const result = await loginUser(data)
+            const userData = req.body
+            const result = await loginUser(userData)
             return res.status(200).send({
-                message: result,
-                success: true
+                result
             })
         } catch (error) {
             res.status(500).send({
@@ -162,7 +161,7 @@ class userController {
             const { customUserId } = req.params
             const result = await postHouseAd(customUserId, data)          
             return res.status(200).send({
-                message: result
+                result: result
             })
 
         } catch (error) {
