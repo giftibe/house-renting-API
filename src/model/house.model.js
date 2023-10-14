@@ -9,13 +9,13 @@ const houseModel = new Schema({
     customHouseId: {
         type: String,
         default: uuid.v4,
-        unique: true,
+        unique: true
     },
 
     user: {
-        type: String,
+        type: Schema.Types.ObjectId,
+        ref: 'user',
         required: true,
-        trim: true
     },
 
     title: {

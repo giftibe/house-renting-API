@@ -57,7 +57,7 @@ const userSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'House',
         ischecked: true,
-        default: '',
+        default: [],
     }],
 
     isVerified: {

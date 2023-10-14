@@ -2,6 +2,7 @@ const user = require('../model/user.model')
 const House = require('../model/house.model')
 const Boom = require('@hapi/boom');
 const mailer = require('../utils/emailer')
+const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const generate_Template = require('../utils/template');
 const { subject1 } = process.env
@@ -49,20 +50,20 @@ class userServices {
         }
     }
 
-    // @desc logs in a user
-    async loginUser(data) {
+    // @desc logs in a user#
+    async loginUser(userData) { // Change the parameter name to 'userData'
         try {
-            const { email } = data
+            const email = userData.email;
+
             //check if the user email exists in db
-            const findUser = await user.find({ email: email })
-
-
+            const findUser = await user.findOne({ email: email })
             if (!findUser) {
                 return {
                     message: "Email does not exit, register",
                     success: false
                 }
             }
+
 
             // @check if users' email is verified
 
@@ -85,7 +86,8 @@ class userServices {
             // }
 
             //compare passwords with jwt
-            const isMatch = await bcrypt.compare(data.password, findUser.password);
+            const inputPassword = userData.password
+            const isMatch = await bcrypt.compare(inputPassword, findUser.password);
             if (!isMatch) {
                 return res.status(403).send({
                     message: 'MESSAGES.USER.WRONG_PASSWORD',
@@ -93,13 +95,13 @@ class userServices {
                 });
             }
 
-            const token = jwt.sign({ customUserId: findUser.customUserId }, SECRET_KEY);
-            const { password, ...data } = findUser.toJSON();
+            const token = jwt.sign({ _id: findUser.id }, SECRET_KEY);
+            const { password, ...userDetails } = findUser.toJSON();
 
             return {
                 message: 'MESSAGES.USER_LOGGEDIN',
                 success: true,
-                data,
+                userDetails,
                 token
             }
         } catch (error) {
@@ -268,7 +270,7 @@ class userServices {
     }
 
 
-    // @desc create a house post
+    // @desc create a house post#
     async postHouseAd(customUserId, data) {
         try {
             //user id
@@ -276,22 +278,18 @@ class userServices {
 
             if (!userFound) {
                 return {
-                    message: "You are not authorized to perform this action",
+                    message: "You are not authorized to perform this action. check ID",
                     success: false
                 }
             }
             const newHousePost = await House.create({
-                user: customUserId,
+                user: userFound._id,
                 ...data
             })
-
-
-            // Update the user document with the populated house details
             await user.findOneAndUpdate(
                 { customUserId: customUserId },
-                { $push: { houseAds: newHousePost._id } },
-                { new: true } // To return the updated user document
-            ).populate('user');
+                { $push: { houseAds: newHousePost._id } }
+            );
 
             return {
                 message: "House created successfully",
@@ -301,19 +299,19 @@ class userServices {
 
         } catch (error) {
             return {
-                message: 'MESSAGES.USER.SERVER_ERROR' + error,
+                message: MESSAGES.USER.ERROR + error,
                 success: false,
             }
         }
     }
 
 
-    //  @desc   deletes my post
+    //  @desc  deletes my post#
     async deleteHousePost(data) {
         try {
             //check if the house exist
             const { customHouseId } = data //house id
-            const findHouse = await House.findById({ customHouseId: customHouseId })
+            const findHouse = await House.findOne({ customHouseId: customHouseId })
             if (!findHouse) {
                 return {
                     message: "No such House post exist",
@@ -321,7 +319,13 @@ class userServices {
                 }
             }
 
-            await House.findByIdAndDelete({ customHouseId: customHouseId })
+            await House.findOneAndDelete({ customHouseId: customHouseId })
+            // also delete the id from the users houseAds
+            await user.findByIdAndUpdate(
+                { _id: findHouse.user },
+                { $pull: { houseAds: findHouse.id } }
+            )
+
             return {
                 message: "Post successfully deleted",
                 success: true
@@ -329,24 +333,27 @@ class userServices {
 
         } catch (error) {
             return {
-                message: 'MESSAGES.USER.SERVER_ERROR' + error,
+                message: MESSAGES.USER.ERROR + error,
                 success: false,
             }
         }
     }
 
 
-    // @desc     update my post
+    // @desc     update my post#
     async updateHousePost(customHouseId, data) {
         try {
-            const findHouse = await House.findById({ customHouseId: customHouseId })
+            const findHouse = await House.findOne({ customHouseId: customHouseId })
             if (!findHouse) {
                 return {
                     message: "No such House post exist",
                     success: false
                 }
             }
-            const updatedHouse = await House.findOneAndUpdate({ customHouseId: customHouseId }, data)
+            const updatedHouse = await House.findOneAndUpdate(
+                { customHouseId: customHouseId },
+                data,
+                { new: true })
             return {
                 message: "House post updated successfully",
                 success: true,
@@ -354,7 +361,7 @@ class userServices {
             }
         } catch (error) {
             return {
-                message: 'MESSAGES.USER.SERVER_ERROR' + error,
+                message: MESSAGES.USER.SERROR + error,
                 success: false,
             }
         }
