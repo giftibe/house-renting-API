@@ -35,6 +35,6 @@ userRouter.post('/user/createHouse/:customUserId', isValidUUID, post_House_Ad)
 userRouter.delete('/user/deletehouse/:customHouseId', delete_House_Post)
 userRouter.patch('/user/updateHouse/:customHouseId', isValidUUID, update_House_Post)
 userRouter.get('/user/allHouses/:customUserId', isValidUUID, get_All_MyHouse_Ads)
-userRouter.get('/user/houses/saved/:customUserId/:customHouseId', isValidUUID, saved_For_Later)
+userRouter.post('/user/houses/saved/:customUserId/:HouseId', isValidUUID, saved_For_Later)
 
 module.exports = userRouter
