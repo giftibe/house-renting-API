@@ -7,7 +7,6 @@ app.use(helmet())
 app.use(express.urlencoded({ extended: true }))
 
 
-
 require('dotenv').config();
 const cors = require('cors');
 const router = require('./src/route/index.route')

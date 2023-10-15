@@ -12,7 +12,7 @@ const {
 } = AdminServices
 
 class AdminController {
-    
+
     //     @desc    signup an Admin
     //     *  @access  Private
     async signUp_Admin(req, res) {
@@ -20,7 +20,6 @@ class AdminController {
             const data = req.body
             const result = await createAdmin(data)
             return res.status(201).json({
-                success: true,
                 result
             })
         } catch (error) {
@@ -78,14 +77,12 @@ class AdminController {
         try {
             const result = await getAllUser()
             return res.status(201).send({
-                success: true,
                 result
             })
         }
         catch (error) {
             res.status(500).send({
                 message: 'Internal Server Error ' + error,
-                success: false
             })
         }
     }
@@ -114,10 +111,9 @@ class AdminController {
     async update_Admin(req, res) {
         try {
             const data = req.body
-            const customAdminId = req.params
+            const { customAdminId } = req.params
             const result = await updateAdmin(customAdminId, data)
             return res.status(201).send({
-                success: true,
                 result
             })
         }
@@ -178,7 +174,6 @@ class AdminController {
             const data = req.params
             const result = await checkAdminResetPasswordLink(data)
             return res.status(201).send({
-                success: true,
                 result
             })
         } catch (error) {
@@ -198,7 +193,6 @@ class AdminController {
             const data = req.body
             const result = await updatePassword(customAdminId, data)
             return res.status(201).send({
-                success: true,
                 result
             })
         } catch (error) {
