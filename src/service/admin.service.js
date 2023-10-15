@@ -65,24 +65,24 @@ class AdminServices {
                 }
             }
 
-            //check if users' email is verified
-            // if (findUser.isVerified === false) {
-            //     const verification_Token = jwt.sign({ email }, SECRET_KEY, {
-            //         expiresIn: "30m",
-            //     });
-            //     const Link = `https://propell-ten.vercel.app/verifyMail/${encodeURIComponent(
-            //         verification_Token
-            //     )}`;
-            //     const htmlFileDir = path.join(__dirname, "../client/verify-1.html");
+            //@ To check if Admins' email is verified and authorize them
+            if (findUser.isVerified === false) {
+                const verification_Token = jwt.sign({ email }, SECRET_KEY, {
+                    expiresIn: "15m",
+                });
+                const Link = `https://propell-ten.vercel.app/verifyMail/${encodeURIComponent(
+                    verification_Token
+                )}`;
+                const htmlFileDir = path.join(__dirname, "../client/verify-1.html");
 
-            //     //send email to verify account
-            //     generate_Template(Link, htmlFileDir)
-            //     mailer({ subject: subject1, template: generate_Template, email: email })
-            //     return {
-            //         message: 'MESSAGES.USER.VERIFY_EMAIL',
-            //         success: false,
-            //     };
-            // }
+                //send email to verify account
+                generate_Template(Link, htmlFileDir)
+                mailer({ subject: subject1, template: generate_Template, email: email })
+                return {
+                    message: 'MESSAGES.USER.VERIFY_EMAIL',
+                    success: false,
+                };
+            }
 
             //compare passwords with jwt
             const inputPassword = adminData.password

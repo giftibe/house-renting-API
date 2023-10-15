@@ -65,25 +65,25 @@ class userServices {
             }
 
 
-            // @check if users' email is verified
+            // @ To check if users' email is verified and authorize them
 
-            // if (findUser.isVerified === false) {
-            //     const verification_Token = jwt.sign({ email }, SECRET_KEY, {
-            //         expiresIn: "5m",
-            //     });
-            //     const Link = `https://propell-ten.vercel.app/verifyMail/${encodeURIComponent(
-            //         verification_Token
-            //     )}`;
-            //     const htmlFileDir = path.join(__dirname, "../client/verify-1.html");
+            if (findUser.isVerified === false) {
+                const verification_Token = jwt.sign({ email }, SECRET_KEY, {
+                    expiresIn: "10m",
+                });
+                const Link = `https://propell-ten.vercel.app/verifyMail/${encodeURIComponent(
+                    verification_Token
+                )}`;
+                const htmlFileDir = path.join(__dirname, "../client/verify-1.html");
 
-            //     //send email to verify account
-            //     const template = generate_Template(Link, htmlFileDir)
-            //     mailer(subject1, template, email)
-            //     return {
-            //         message: 'MESSAGES.USER.VERIFY_EMAIL',
-            //         success: false,
-            //     };
-            // }
+                //send email to verify account
+                const template = generate_Template(Link, htmlFileDir)
+                mailer(subject1, template, email)
+                return {
+                    message: 'MESSAGES.USER.VERIFY_EMAIL',
+                    success: false,
+                };
+            }
 
             //compare passwords with jwt
             const inputPassword = userData.password
