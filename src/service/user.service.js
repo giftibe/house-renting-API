@@ -156,7 +156,6 @@ class userServices {
             //check if the email exist in the database
             const { email } = data;
             const userEmail = await user.find({ email: email });
-            // console.log(userEmail)
             if (!userEmail) {
                 return {
                     message: 'MESSAGES.USER.EMAIL_NOTFOUND',

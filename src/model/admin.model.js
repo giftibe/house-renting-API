@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt')
 const uuid = require('uuid');
 const Schema = mongoose.Schema
 const { ENUM } = require('../config/config.constant')
-const rounds = process.env.ROUNDS
+const rounds = +process.env.ROUNDS
 
 const adminSchema = new Schema({
 
