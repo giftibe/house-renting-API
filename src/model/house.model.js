@@ -4,7 +4,7 @@ const user = require('./user.model')
 const uuid = require('uuid');
 
 
-const houseModel = new Schema({
+const houseSchema = new Schema({
 
     customHouseId: {
         type: String,
@@ -61,5 +61,5 @@ const houseModel = new Schema({
         required: true
     }
 })
-const House = mongoose.model('house', houseModel)
+const House = mongoose.model('house', houseSchema)
 module.exports = House

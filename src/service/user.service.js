@@ -367,24 +367,37 @@ class userServices {
         }
     }
 
-    // @desc    gets all my House posted
+    // @desc    gets all my House posted#
     async getAllMyHouseAd(data) {
         try {
             const { customUserId } = data
-            const getUser = await user.find({ customUserId: customUserId })
+            // const getUser = await user.find(
+            //     { customUserId: customUserId }
+            // )
+
+            const getUser = await user
+                .findOne({ customUserId: customUserId })
+                .populate({
+                    path: 'houseAds',
+                    model: House
+                });
+
             if (!getUser) {
                 return {
                     message: "User does not exist",
                     success: false,
                 }
             }
-            const houses = getUser.houses
+
+            const houses = getUser.houseAds
+            // console.log(houses);
             if (houses.length == 0) {
                 return {
-                    message: "You have no add posted",
+                    message: "You have no ad posted",
                     success: false
                 }
             }
+
             return {
                 message: "Houses found",
                 success: true,
@@ -393,7 +406,7 @@ class userServices {
 
         } catch (error) {
             return {
-                message: 'MESSAGES.USER.SERVER_ERROR' + error,
+                message: MESSAGES.USER.ERROR + error,
                 success: false,
             }
         }
@@ -404,17 +417,18 @@ class userServices {
     // @desc adds houses to saved for later section
     async savedForLater(data) {
         try {
-            const { customUserId, customHouseId } = data
+            const { customUserId, HouseId } = data
             //Check the house exists
-            const findHouse = await House.findById({ customHouseId: customHouseId })
+            const findHouse = await House.findById({ _id: HouseId })
             if (!findHouse) {
                 return {
                     message: "House does not exist",
                     success: false
                 }
             }
+
             //check if the user exist
-            const checkUser = await user.findById({ _id: customUserId })
+            const checkUser = await user.findOne({ customUserId: customUserId })
             if (!checkUser) {
                 return {
                     message: "user doesn't exist",
@@ -423,8 +437,11 @@ class userServices {
             }
 
             //if user exist get the savedItem section
-            let savedItems = checkUser.savedItem;
-            const saved = savedItems.unshift(customHouseId)
+            const saved = await user.findOneAndUpdate(
+                { customUserId: customUserId },
+                { $push: { savedItem: HouseId } }
+            );
+
             if (!saved) {
                 return {
                     message: "item not saved",
@@ -438,7 +455,7 @@ class userServices {
             }
         } catch (error) {
             return {
-                message: 'MESSAGES.USER.SERVER_ERROR' + error,
+                message: MESSAGES.USER.ERROR + error,
                 success: false,
             };
         }
