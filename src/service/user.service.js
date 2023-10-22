@@ -52,7 +52,7 @@ class userServices {
         }
     }
 
-    
+
     //     @desc    to validate the admin email
     async verifyEmail(data) {
         try {
@@ -74,7 +74,7 @@ class userServices {
 
             if (!verifiedUser) {
                 return {
-                    message: 'MESSAGES.USER.ACCOUNT_NOT_REGISTERED',
+                    message: MESSAGES.USER.ACCOUNT_NOT_REGISTERED,
                     success: false,
                 };
             }
@@ -96,19 +96,19 @@ class userServices {
                 mailer(subject, template, email);
 
                 return {
-                    message: 'MESSAGES.USER.EMAIL_VERIFIED',
+                    message: MESSAGES.USER.EMAIL_VERIFIED,
                     success: true,
                 };
             }
 
             return {
-                message:' MESSAGES.USER.EMAIL_NOT_VERIFIED',
+                message: MESSAGES.USER.EMAIL_NOT_VERIFIED,
                 success: false,
             };
 
         } catch (error) {
             return {
-                message: 'MESSAGES.USER.INVALID_TOKEN',
+                message: MESSAGES.USER.INVALID_TOKEN,
                 success: false,
             };
         }
@@ -124,7 +124,7 @@ class userServices {
             const findUser = await user.findOne({ email: email })
             if (!findUser) {
                 return {
-                    message: "Email does not exit, register",
+                    message: MESSAGES.USER.ACCOUNT_NOT_REGISTERED,
                     success: false
                 }
             }
@@ -145,7 +145,7 @@ class userServices {
                 const template = generate_Template(Link, htmlFileDir)
                 mailer(subject1, template, email)
                 return {
-                    message: 'MESSAGES.USER.VERIFY_EMAIL',
+                    message: MESSAGES.USER.VERIFY_EMAIL,
                     success: false,
                 };
             }
@@ -155,7 +155,7 @@ class userServices {
             const isMatch = await bcrypt.compare(inputPassword, findUser.password);
             if (!isMatch) {
                 return res.status(403).send({
-                    message: 'MESSAGES.USER.WRONG_PASSWORD',
+                    message: MESSAGES.USER.WRONG_PASSWORD,
                     success: false,
                 });
             }
@@ -164,7 +164,7 @@ class userServices {
             const { password, ...userDetails } = findUser.toJSON();
 
             return {
-                message: 'MESSAGES.USER_LOGGEDIN',
+                message: MESSAGES.USER_LOGGEDIN,
                 success: true,
                 userDetails,
                 token
@@ -189,25 +189,25 @@ class userServices {
                 );
                 if (updated) {
                     return {
-                        message: 'MESSAGES.USER.ACCOUNT_UPDATED',
+                        message: MESSAGES.USER.ACCOUNT_UPDATED,
                         success: true,
                         updated,
                     };
                 } else {
                     return {
-                        message: 'MESSAGES.USER.NOT_UPDATED',
+                        message: MESSAGES.USER.NOT_UPDATED,
                         success: false,
                     };
                 }
             } else {
                 return {
                     success: false,
-                    message: 'MESSAGES.USER.ACCOUNT_NOT_REGISTERED',
+                    message: MESSAGES.USER.ACCOUNT_NOT_REGISTERED,
                 };
             }
         } catch (error) {
             return {
-                message: 'MESSAGES.USER.ERROR ' + error,
+                message: MESSAGES.USER.ERROR + error,
                 success: false,
             };
         }
@@ -223,7 +223,7 @@ class userServices {
             const userEmail = await user.find({ email: email });
             if (!userEmail) {
                 return {
-                    message: 'MESSAGES.USER.EMAIL_NOTFOUND',
+                    message: MESSAGES.USER.EMAIL_NOTFOUND,
                     success: false,
                 };
             }
@@ -342,7 +342,7 @@ class userServices {
 
             if (!userFound) {
                 return {
-                    message: "You are not authorized to perform this action. check ID",
+                    message: MESSAGES.USER.ACCOUNT_NOT_REGISTERED,
                     success: false
                 }
             }
@@ -356,7 +356,7 @@ class userServices {
             );
 
             return {
-                message: "House created successfully",
+                message: MESSAGES.USER.HOUSE_CREATED,
                 success: true,
                 newHousePost
             }
@@ -378,7 +378,7 @@ class userServices {
             const findHouse = await House.findOne({ customHouseId: customHouseId })
             if (!findHouse) {
                 return {
-                    message: "No such House post exist",
+                    message: MESSAGES.USER.ABS_HOUSE,
                     success: false
                 }
             }
@@ -391,7 +391,7 @@ class userServices {
             )
 
             return {
-                message: "Post successfully deleted",
+                message: MESSAGE.USER.DEL_HOUSE,
                 success: true
             }
 
@@ -410,7 +410,7 @@ class userServices {
             const findHouse = await House.findOne({ customHouseId: customHouseId })
             if (!findHouse) {
                 return {
-                    message: "No such House post exist",
+                    message: MESSAGES.USER.ABS_HOUSE,
                     success: false
                 }
             }
@@ -419,7 +419,7 @@ class userServices {
                 data,
                 { new: true })
             return {
-                message: "House post updated successfully",
+                message: MESSAGES.USER.UPDATE_HOUSE,
                 success: true,
                 updatedHouse
             }
@@ -448,7 +448,7 @@ class userServices {
 
             if (!getUser) {
                 return {
-                    message: "User does not exist",
+                    message: MESSAGES.USER.USER_NOT_FOUND,
                     success: false,
                 }
             }
@@ -457,13 +457,13 @@ class userServices {
             // console.log(houses);
             if (houses.length == 0) {
                 return {
-                    message: "You have no ad posted",
+                    message: MESSAGES.USER.NO_ADS,
                     success: false
                 }
             }
 
             return {
-                message: "Houses found",
+                message: MESSAGES.USER.HOUSES_FOUND,
                 success: true,
                 houses
             }
@@ -486,7 +486,7 @@ class userServices {
             const findHouse = await House.findById({ _id: HouseId })
             if (!findHouse) {
                 return {
-                    message: "House does not exist",
+                    message: MESSAGES.USER.ABS_HOUSE,
                     success: false
                 }
             }
@@ -495,7 +495,7 @@ class userServices {
             const checkUser = await user.findOne({ customUserId: customUserId })
             if (!checkUser) {
                 return {
-                    message: "user doesn't exist",
+                    message: MESSAGES.USER.USER_NOT_FOUND,
                     success: false
                 }
             }
@@ -508,12 +508,12 @@ class userServices {
 
             if (!saved) {
                 return {
-                    message: "item not saved",
+                    message: MESSAGES.USER.NOT_SAVED_HOUSE,
                     success: false
                 }
             }
             return {
-                message: 'Item saved for later',
+                message: MESSAGES.USER.SAVED_HOUSE,
                 success: true,
                 findHouse
             }
