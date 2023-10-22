@@ -30,7 +30,7 @@ class AdminServices {
             const verification_Token = jwt.sign({ email }, SECRET_KEY, {
                 expiresIn: "30m",
             });
-            const Link = `https://propell-ten.vercel.app/verifyMail/${encodeURIComponent(
+            const Link = `https://localhost:${encodeURIComponent(PORT)}/api/v1/verifyMail/${encodeURIComponent(
                 verification_Token
             )}`;
             const htmlFileDir = path.join(__dirname, "../client/verify-1.html");
@@ -47,6 +47,68 @@ class AdminServices {
         }
         catch (error) {
             return Boom.conflict('there was a conflict' + error);
+        }
+    }
+
+
+    //     @desc    to validate the admin email
+    async verifyEmail(data) {
+        try {
+            const { token } = data;
+            const decoded = jwt.verify(token, SECRET_KEY);
+
+            if (!decoded) {
+                return {
+                    message: 'MESSAGES.USER.EMAIL_VER_FAILED',
+                    success: false,
+                };
+            }
+
+            // Update the user's verification status to true
+            const { email } = decoded;
+
+            // Find the user by email
+            const verifiedAdmin = await Admin.findOne({ email });
+
+            if (!verifiedAdmin) {
+                return {
+                    message:' MESSAGES.USER.ACCOUNT_NOT_REGISTERED',
+                    success: false,
+                };
+            }
+
+            // Update the isVerified field in the database
+            const updateResult = await Admin.updateOne(
+                { _id: verifiedAdmin._id },
+                { isVerified: true }
+            );
+            // Check if the update was successful
+            if (updateResult.modifiedCount === 1) {
+                // Send a welcome email
+                const templateFileDir = path.join(
+                    __dirname,
+                    "../client/welcome-1.html"
+                );
+                const template = fs.readFileSync(templateFileDir, "utf8");
+                const subject = "Welcome ";
+                mailer(subject, template, email);
+
+                return {
+                    message: 'MESSAGES.USER.EMAIL_VERIFIED',
+                    success: true,
+                };
+            }
+
+            return {
+                message: 'MESSAGES.USER.EMAIL_NOT_VERIFIED',
+                success: false,
+            };
+
+        } catch (error) {
+            return {
+                message: 'MESSAGES.USER.INVALID_TOKEN',
+                success: false,
+            };
         }
     }
 
@@ -70,7 +132,7 @@ class AdminServices {
                 const verification_Token = jwt.sign({ email }, SECRET_KEY, {
                     expiresIn: "15m",
                 });
-                const Link = `https://propell-ten.vercel.app/verifyMail/${encodeURIComponent(
+                const Link = `https://localhost:${encodeURIComponent(PORT)}/api/v1/verifyMail/${encodeURIComponent(
                     verification_Token
                 )}`;
                 const htmlFileDir = path.join(__dirname, "../client/verify-1.html");

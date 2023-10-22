@@ -12,6 +12,7 @@ const {
 
 const {
     signUp_Admin,
+    verify_Email,
     login_Admin,
     get_Admin,
     get_All_User,
@@ -23,7 +24,7 @@ const {
     update_password
 } = adminController
 
-
+adminRouter.get("/admin/verifyMail/:token", verify_Email);
 adminRouter.post('/admin/register', validate_Account_Creation_Inputs, signUp_Admin)
 adminRouter.post('/admin/login', validate_Login_Inputs, login_Admin)
 adminRouter.post('/admin/logout', logout_Admin)

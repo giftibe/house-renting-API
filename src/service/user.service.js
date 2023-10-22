@@ -9,6 +9,8 @@ const { subject1 } = process.env
 const SECRET_KEY = process.env.SECRET_KEY
 const path = require('path')
 const { MESSAGES } = require('../config/config.constant')
+const PORT = process.env.PORT
+
 
 
 class userServices {
@@ -33,7 +35,7 @@ class userServices {
             const verification_Token = jwt.sign({ email }, SECRET_KEY, {
                 expiresIn: "5m",
             });
-            const Link = `https://propell-ten.vercel.app/verifyMail/${encodeURIComponent(
+            const Link = `https://localhost:${encodeURIComponent(PORT)}/api/v1/verifyMail/${encodeURIComponent(
                 verification_Token
             )}`;
             const htmlFileDir = path.join(__dirname, "../client/verify-1.html");
@@ -49,6 +51,69 @@ class userServices {
             return Boom.conflict(MESSAGES.USER.ERROR + error);
         }
     }
+
+    
+    //     @desc    to validate the admin email
+    async verifyEmail(data) {
+        try {
+            const { token } = data;
+            const decoded = jwt.verify(token, SECRET_KEY);
+
+            if (!decoded) {
+                return {
+                    message: MESSAGES.USER.EMAIL_VER_FAILED,
+                    success: false,
+                };
+            }
+
+            // Update the user's verification status to true
+            const { email } = decoded;
+
+            // Find the user by email
+            const verifiedUser = await user.findOne({ email });
+
+            if (!verifiedUser) {
+                return {
+                    message: 'MESSAGES.USER.ACCOUNT_NOT_REGISTERED',
+                    success: false,
+                };
+            }
+
+            // Update the isVerified field in the database
+            const updateResult = await user.updateOne(
+                { _id: verifiedUser._id },
+                { isVerified: true }
+            );
+            // Check if the update was successful
+            if (updateResult.modifiedCount === 1) {
+                // Send a welcome email
+                const templateFileDir = path.join(
+                    __dirname,
+                    "../client/welcome-1.html"
+                );
+                const template = fs.readFileSync(templateFileDir, "utf8");
+                const subject = "Welcome";
+                mailer(subject, template, email);
+
+                return {
+                    message: 'MESSAGES.USER.EMAIL_VERIFIED',
+                    success: true,
+                };
+            }
+
+            return {
+                message:' MESSAGES.USER.EMAIL_NOT_VERIFIED',
+                success: false,
+            };
+
+        } catch (error) {
+            return {
+                message: 'MESSAGES.USER.INVALID_TOKEN',
+                success: false,
+            };
+        }
+    }
+
 
     // @desc logs in a user#
     async loginUser(userData) { // Change the parameter name to 'userData'
@@ -71,7 +136,7 @@ class userServices {
                 const verification_Token = jwt.sign({ email }, SECRET_KEY, {
                     expiresIn: "10m",
                 });
-                const Link = `https://propell-ten.vercel.app/verifyMail/${encodeURIComponent(
+                const Link = `https://localhost:${encodeURIComponent(PORT)}/api/v1/verifyMail/${encodeURIComponent(
                     verification_Token
                 )}`;
                 const htmlFileDir = path.join(__dirname, "../client/verify-1.html");
@@ -171,7 +236,7 @@ class userServices {
 
             const userID = userEmail[0].customUserId
             const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "5m" });
-            const Link = `https://propell-ten.vercel.app/user/reset-password/${encodeURIComponent(
+            const Link = `https://localhost:${encodeURIComponent(PORT)}/api/v1/user/resetpassword/${encodeURIComponent(
                 userID
             )}/${encodeURIComponent(token)}`;
 

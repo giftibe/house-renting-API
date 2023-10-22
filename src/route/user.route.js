@@ -12,6 +12,7 @@ const userController = require('../controller/user.controller')
 const {
     create_user,
     login_user,
+    verify_Email,
     update_user,
     logOutUser,
     sendUser_ResetPassword_Link,
@@ -24,6 +25,7 @@ const {
     saved_For_Later
 } = userController
 
+userRouter.get("/user/verifyMail/:token", verify_Email);
 userRouter.post('/user/register', validate_Account_Creation_Inputs, create_user)
 userRouter.post('/user/login', validate_Login_Inputs, login_user)
 userRouter.patch('/user/updateuser/:customUserId', isValidUUID, validate_User_Update, update_user)

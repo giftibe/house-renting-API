@@ -2,6 +2,7 @@ const userServices = require('../service/user.service')
 
 const {
     createuser,
+    verifyEmail,
     loginUser,
     updateAUser,
     sendUserResetPasswordLink,
@@ -30,6 +31,28 @@ class userController {
                 success: true
             })
         } catch (error) {
+            res.status(500).send({
+                message: 'Internal Server Error ' + error,
+                success: false
+            })
+        }
+    }
+
+
+    //    @route   GET /api/v1/user/verifyMail/:token
+    //     @desc    to validate the user email
+    //     *  @access  Private
+
+    async verify_Email(req, res) {
+        try {
+            const data = req.params
+            const result = await verifyEmail(data)
+            return res.status(200).send({
+                message: result,
+            })
+
+        }
+        catch (error) {
             res.status(500).send({
                 message: 'Internal Server Error ' + error,
                 success: false
@@ -159,7 +182,7 @@ class userController {
         try {
             const data = req.body
             const { customUserId } = req.params
-            const result = await postHouseAd(customUserId, data)          
+            const result = await postHouseAd(customUserId, data)
             return res.status(200).send({
                 result: result
             })

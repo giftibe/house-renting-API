@@ -1,6 +1,7 @@
 const AdminServices = require('../service/admin.service')
 const {
     createAdmin,
+    verifyEmail,
     loginAdmin,
     getAUser,
     getAllUser,
@@ -29,6 +30,29 @@ class AdminController {
             })
         }
     }
+
+    //    @route   GET /api/v1/admin/verifyMail/:token
+    //     @desc    to validate the admin email
+    //     *  @access  Private
+
+    async verify_Email(req, res) {
+        try {
+            const data = req.params
+            const result = await verifyEmail(data)
+            return res.status(200).send({
+                message: result,
+                success: true
+            })
+        }
+        catch (error) {
+            res.status(500).send({
+                message: 'Internal Server Error ' + error,
+                success: false
+            })
+        }
+    }
+
+
 
 
     //     @desc    login Admin
