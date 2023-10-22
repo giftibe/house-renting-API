@@ -35,12 +35,12 @@ This is a Node.js-based API for house renting and listing. Users can post their 
 
 ### `middlewares`
 
-- Contains middleware functions used in the application, such as `authGate.js`.
+- Contains middleware functions used in the application.
 
 ### `utils`
 
 - Contains utility feature-related files used app-wide.
-- Examples include `emailer.js`, `multer.js`, `cloudinary.js`, and `emailtemplate generator`.
+- Examples include `emailer.js`, `multer.js`, and `emailtemplate generator`.
 
 ### `validation`
 
