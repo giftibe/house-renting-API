@@ -62,7 +62,7 @@ const userSchema = new Schema({
 
     isVerified: {
         type: Boolean,
-        default: false,
+        default: true,  //In production, this will set to 'false' and on verifying email, will automatically changed to 'true'
     },
 
     savedItem: [{
