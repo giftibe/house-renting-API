@@ -3,6 +3,7 @@ const Boom = require('@hapi/boom');
 const mailer = require('../utils/emailer')
 const bcrypt = require('bcrypt')
 const path = require('path')
+const { MESSAGES } = require('../config/config.constant')
 const jwt = require('jsonwebtoken')
 const generate_Template = require('../utils/template');
 const user = require('../model/user.model');
@@ -19,7 +20,7 @@ class AdminServices {
             //check if email exist
             const existingUser = await Admin.find({ email: email }, { _id: 1, password: 0 })
             if (existingUser.length !== 0) {
-                return Boom.conflict('Email already exists')
+                return Boom.conflict(MESSAGES.USER.EMAIL_DUPLICATE)
             }
 
             //save to data
@@ -41,7 +42,7 @@ class AdminServices {
             mailer({ subject: subject1, template: generate_Template, email: email })
 
             return {
-                message: "MESSAGES.USER.CREATED",
+                message: MESSAGES.USER.CREATED,
                 success: true,
             };
         }
@@ -59,7 +60,7 @@ class AdminServices {
 
             if (!decoded) {
                 return {
-                    message: 'MESSAGES.USER.EMAIL_VER_FAILED',
+                    message: MESSAGES.USER.EMAIL_VER_FAILED,
                     success: false,
                 };
             }
@@ -72,7 +73,7 @@ class AdminServices {
 
             if (!verifiedAdmin) {
                 return {
-                    message:' MESSAGES.USER.ACCOUNT_NOT_REGISTERED',
+                    message: MESSAGES.USER.ACCOUNT_NOT_REGISTERED,
                     success: false,
                 };
             }
@@ -94,19 +95,19 @@ class AdminServices {
                 mailer(subject, template, email);
 
                 return {
-                    message: 'MESSAGES.USER.EMAIL_VERIFIED',
+                    message: MESSAGES.USER.EMAIL_VERIFIED,
                     success: true,
                 };
             }
 
             return {
-                message: 'MESSAGES.USER.EMAIL_NOT_VERIFIED',
+                message: MESSAGES.USER.EMAIL_NOT_VERIFIED,
                 success: false,
             };
 
         } catch (error) {
             return {
-                message: 'MESSAGES.USER.INVALID_TOKEN',
+                message: MESSAGES.USER.INVALID_TOKEN,
                 success: false,
             };
         }
@@ -122,7 +123,7 @@ class AdminServices {
 
             if (!findUser) {
                 return {
-                    message: "Email does not exit, register",
+                    message: MESSAGES.USER.ACCOUNT_NOT_REGISTERED,
                     success: false
                 }
             }
@@ -141,7 +142,7 @@ class AdminServices {
                 generate_Template(Link, htmlFileDir)
                 mailer({ subject: subject1, template: generate_Template, email: email })
                 return {
-                    message: 'MESSAGES.USER.VERIFY_EMAIL',
+                    message: MESSAGES.USER.VERIFY_EMAIL,
                     success: false,
                 };
             }
@@ -151,7 +152,7 @@ class AdminServices {
             const isMatch = await bcrypt.compare(inputPassword, findUser.password);
             if (!isMatch) {
                 return {
-                    message: 'MESSAGES.USER.WRONG_PASSWORD',
+                    message: MESSAGES.USER.WRONG_PASSWORD,
                     success: false,
                 };
             }
@@ -159,7 +160,7 @@ class AdminServices {
             const { password, ...adminDetails } = findUser.toJSON();
 
             return {
-                message: 'MESSAGES.USER_LOGGEDIN',
+                message: MESSAGES.USER_LOGGEDIN,
                 success: true,
                 adminDetails,
                 token
@@ -177,13 +178,13 @@ class AdminServices {
             const findUser = await Admin.findOne({ customAdminId: customAdminId }, { _id: 1, password: 0 })
             if (!findUser) {
                 return {
-                    message: 'No User Found',
+                    message: MESSAGES.USER.ACCOUNT_NOT_REGISTERED,
                     success: false
                 }
             }
 
             return {
-                message: 'MESSAGES.USER_LOGGEDIN',
+                message: MESSAGES.USER_LOGGEDIN,
                 success: true,
                 findUser
             }
@@ -202,13 +203,13 @@ class AdminServices {
 
             if (!findUser) {
                 return {
-                    message: 'MESSAGES.USER.NO_USER',
+                    message: MESSAGES.USER.NO_USER,
                     success: false,
                 }
             }
 
             return {
-                message: 'MESSAGES.USER.USER_FOUND',
+                message: MESSAGES.USER.USER_FOUND,
                 success: true,
                 findUser
             }
@@ -232,13 +233,13 @@ class AdminServices {
             )
             if (!User) {
                 return {
-                    message: 'MESSAGES.USER.NO_USER',
+                    message: MESSAGES.USER.NO_USER,
                     success: false,
                 }
             }
 
             return {
-                message: 'MESSAGES.USER.USER_FOUND',
+                message: MESSAGES.USER.USER_FOUND,
                 success: true,
                 User
             }
@@ -258,7 +259,7 @@ class AdminServices {
             if (!findAdmin) {
                 return {
                     success: false,
-                    message: 'MESSAGES.USER.ACCOUNT_NOT_REGISTERED',
+                    message: MESSAGES.USER.ACCOUNT_NOT_REGISTERED,
                 }
             }
 
@@ -270,12 +271,12 @@ class AdminServices {
 
             if (!updated) {
                 return {
-                    message: 'MESSAGES.USER.NOT_UPDATED',
+                    message: MESSAGES.USER.NOT_UPDATED,
                     success: false,
                 }
             }
             return {
-                message: 'MESSAGES.USER.ACCOUNT_UPDATED',
+                message: MESSAGES.USER.ACCOUNT_UPDATED,
                 success: true,
                 updated,
             }
@@ -299,7 +300,7 @@ class AdminServices {
             const userEmail = await Admin.find({ email: email });
             if (!userEmail) {
                 return {
-                    message: 'MESSAGES.USER.EMAIL_NOTFOUND',
+                    message: MESSAGES.USER.EMAIL_NOTFOUND,
                     success: false,
                 };
             }
@@ -325,11 +326,11 @@ class AdminServices {
 
             return {
                 success: true,
-                message: 'MESSAGES.USER.EMAIL_SENT',
+                message: MESSAGES.USER.EMAIL_SENT,
             };
         } catch (error) {
             return {
-                message: 'MESSAGES.USER.SERVER_ERROR' + error,
+                message: MESSAGES.USER.SERVER_ERROR + error,
                 success: false,
             };
         }
@@ -347,7 +348,7 @@ class AdminServices {
             const checkUser = await Admin.findOne({ customAdminId: customAdminId });
             if (!checkUser) {
                 return {
-                    message: 'MESSAGES.USER.ACCOUNT_NOT_REGISTERED',
+                    message: MESSAGES.USER.ACCOUNT_NOT_REGISTERED,
                     success: false,
                 }
             }
@@ -357,20 +358,20 @@ class AdminServices {
                 const isMatch = await bcrypt.compare(decoded.password, checkUser.password);
                 if (!decoded || !isMatch) {
                     return {
-                        message: 'MESSAGES.USER.VALID_LINK',
+                        message: MESSAGES.USER.VALID_LINK,
                         success: true,
                     };
                 }
 
             } catch (error) {
                 return {
-                    message: 'MESSAGES.USER.INVALID_LINK' + error,
+                    message: MESSAGES.USER.INVALID_LINK + error,
                     success: false,
                 };
             }
         } catch (error) {
             return {
-                message: 'MESSAGES.USER.SERVER_ERROR' + error,
+                message: MESSAGES.USER.ERROR + error,
                 success: false,
             };
         }
@@ -390,19 +391,19 @@ class AdminServices {
             });
             if (!userfound) {
                 return {
-                    message: 'MESSAGES.USER.EMAIL_NOTFOUND',
+                    message: MESSAGES.USER.EMAIL_NOTFOUND,
                     success: false,
                 };
             }
             //generate new password and update it
             await Admin.findOneAndDelete({ customAdminId: customAdminId }, { password: password });
             return {
-                message: 'MESSAGES.USER.PASSWORD_UPDATED',
+                message: MESSAGES.USER.PASSWORD_UPDATED,
                 success: true,
             };
         } catch (error) {
             return {
-                message: 'MESSAGES.USER.SERVER_ERROR' + error,
+                message: MESSAGES.USER.ERROR + error,
                 success: false,
             };
         }
