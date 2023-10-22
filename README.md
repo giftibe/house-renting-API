@@ -68,7 +68,7 @@ This is a Node.js-based API for house renting and listing. Users can post their 
 
 ## Dockerization
 
-- Docker and docker-compose files are provided for containerization. Use `docker-compose up` to run the application in a Docker container.
+- Docker and docker-compose files are provided for containerization. Use  `docker build -t <container-name> .` or `docker-compose up` to run the application in a Docker container.
 
 ## Continuous Integration
 
